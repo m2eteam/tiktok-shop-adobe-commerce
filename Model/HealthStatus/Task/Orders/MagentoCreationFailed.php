@@ -39,7 +39,7 @@ class MagentoCreationFailed extends IssueType
                     [
                         'failed_orders_count' => $failedOrders,
                         'url' => $this->urlBuilder->getUrl(
-                            'tiktokshop_log_order/index',
+                            '*/tiktokshop_log_order/index',
                             ['magento_order_failed' => true],
                         ),
                         'extension_title' => \M2E\TikTokShop\Helper\Module::getExtensionTitle()

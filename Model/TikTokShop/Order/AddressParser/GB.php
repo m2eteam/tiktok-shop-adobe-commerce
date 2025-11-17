@@ -8,11 +8,11 @@ class GB extends \M2E\TikTokShop\Model\TikTokShop\Order\BaseAddressParser
 {
     public function getCity(): string
     {
-        return $this->getDistrictsCollection()->tryFindLevelName('county') ?? '';
+        return $this->getDistrictsCollection()->tryFindLevelName('city') ?? '';
     }
 
     public function getState(): string
     {
-        return $this->getDistrictsCollection()->tryFindLevelName('country') ?? '';
+        return $this->getDistrictsCollection()->tryFindLevelName('state') ?? '';
     }
 }

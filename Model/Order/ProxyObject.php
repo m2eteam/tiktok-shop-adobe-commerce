@@ -306,6 +306,7 @@ class ProxyObject
             $this->addressData['telephone'] = $rawAddressData['telephone'];
 
             $rawStreets = array_filter($rawAddressData['street'] ?? []);
+            $rawStreets = $this->sortStreetLinesForBrazil($rawStreets);
             if (count($rawStreets) > $this->addressHelper->getStreetLines($this->order->getStore())) {
                 $rawStreets = [implode(', ', $rawStreets)];
             }
@@ -672,5 +673,19 @@ class ProxyObject
             $addressModel->setVatId($customerInfo['vat_id']);
             $addressModel->save();
         }
+    }
+
+    private function sortStreetLinesForBrazil(array $rawStreets): array
+    {
+        if (!$this->order->getShop()->getRegion()->isRegionCodeBR()) {
+            return $rawStreets;
+        }
+
+        return [
+            $rawStreets[1] ?? null,
+            $rawStreets[2] ?? null,
+            $rawStreets[0] ?? null,
+            $rawStreets[3] ?? null,
+        ];
     }
 }
