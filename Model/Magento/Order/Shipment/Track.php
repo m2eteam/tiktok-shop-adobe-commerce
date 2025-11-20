@@ -9,6 +9,8 @@ use Magento\Sales\Model\ResourceModel\Order\Shipment\Track\Collection as TrackCo
 
 class Track
 {
+    public const CUSTOM_CARRIER_CODE = 'custom';
+
     private ?\Magento\Sales\Model\Order $magentoOrder = null;
 
     private \Magento\Sales\Model\Order\Shipment\TrackFactory $shipmentTrackFactory;
@@ -82,7 +84,7 @@ class Track
         $shippingProviderMapping = $this->order->getWarehouse()->getShippingProviderMapping();
         $carrierCode = $shippingProviderMapping->getCarrierCodeByProviderId($shippingProviderId);
 
-        return $carrierCode ?? 'custom';
+        return $carrierCode ?? self::CUSTOM_CARRIER_CODE;
     }
 
     private function getMagentoOrder(): ?\Magento\Sales\Model\Order

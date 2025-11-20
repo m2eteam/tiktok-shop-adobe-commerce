@@ -37,7 +37,7 @@ class InvoicesAndShipments extends AbstractForm
                     'invoices and shipments in your Magento. To do that, keep Magento ' .
                     '<i>Invoice/Shipment Creation</i> options enabled.</p>',
                     [
-                        'extension_title' => \M2E\TikTokShop\Helper\Module::getExtensionTitle()
+                        'extension_title' => \M2E\TikTokShop\Helper\Module::getExtensionTitle(),
                     ]
                 ),
             ]
@@ -87,8 +87,10 @@ class InvoicesAndShipments extends AbstractForm
                     1 => __('Enabled'),
                 ],
                 'value' => (int)$invoicesAndShipmentSettings->isCreateMagentoShipment(),
-                'tooltip' => __('Enable to automatically create shipment for the Magento order when the ' .
-                    'associated order on Channel is shipped.'),
+                'tooltip' => __(
+                    'Enable to automatically create shipment for the Magento order when the ' .
+                    'associated order on Channel is shipped.'
+                ),
             ]
         );
 
@@ -97,8 +99,29 @@ class InvoicesAndShipments extends AbstractForm
             [
                 'legend' => __('Shipping Carrier Mapping'),
                 'collapsable' => false,
-                'tooltip' => __('Link TikTok Shop carriers to the shipping services in Magento ' .
-                    'to ensure that the correct shipping service is used for each order.'),
+                'tooltip' => __(
+                    'Link TikTok Shop carriers to the shipping services in Magento ' .
+                    'to ensure that the correct shipping service is used for each order.'
+                ),
+            ]
+        );
+
+        $fieldset->addField(
+            'map_shipping_provider_by_custom_carrier_title',
+            'select',
+            [
+                'name' => 'map_shipping_provider_by_custom_carrier_title',
+                'label' => __('Map by Magento Shipping Title'),
+                'values' => [
+                    0 => __('No'),
+                    1 => __('Yes'),
+                ],
+                'value' => (int)$invoicesAndShipmentSettings->isMapShippingProviderByCustomCarrierTitle(),
+                'tooltip' => __(
+                    'Enable it if your Magento shipments use Custom Value for carrier. ' .
+                    'The system will attempt to match TikTok Shop carriers by the carrier title provided ' .
+                    'in the order Shipment'
+                ),
             ]
         );
 

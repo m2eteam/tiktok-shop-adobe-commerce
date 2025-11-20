@@ -50,4 +50,9 @@ class TrackingDetails
     {
         return $this->trackingNumber;
     }
+
+    public function isCustomCarrierCode(): bool
+    {
+        return $this->getCarrierCode() === \M2E\TikTokShop\Model\Magento\Order\Shipment\Track::CUSTOM_CARRIER_CODE;
+    }
 }

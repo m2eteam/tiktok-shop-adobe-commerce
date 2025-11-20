@@ -2,7 +2,7 @@
     "name" : "m2e/tiktok-shop-adobe-commerce",
     "description" : "TikTok Magento (Adobe Commerce) Connect by M2E is a trusted Magento extension that enables merchants of all sizes to fully integrate their Magento-based systems with TikTok Shop",
     "type" : "magento2-module",
-    "version" : "2.11.2",
+    "version" : "2.12.0",
     "license" : "proprietary",
     "keywords" : [
         "magento",

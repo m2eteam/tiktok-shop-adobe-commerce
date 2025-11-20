@@ -8,12 +8,15 @@ class ShipmentService
     public const HANDLE_RESULT_SKIPPED = 0;
     public const HANDLE_RESULT_SUCCEEDED = 1;
 
+    private \M2E\TikTokShop\Model\Warehouse\ShippingMapping $shippingProviderMapping;
+
     private \M2E\TikTokShop\Model\Order\Shipment\TrackingDetailsBuilder $trackingDetailsBuilder;
     private \M2E\TikTokShop\Model\Order\Shipment\ItemLoader $itemLoader;
     private \M2E\TikTokShop\Model\Order\Change\Repository $orderChangeRepository;
     private \M2E\TikTokShop\Model\Order\ChangeCreateService $orderChangeCreateService;
     private \Magento\Framework\UrlInterface $urlInterface;
     private \M2E\TikTokShop\Model\Order\Item\Repository $orderItemRepository;
+    private \M2E\TikTokShop\Model\ShippingProvider\Repository $shippingProviderRepository;
 
     public function __construct(
         \M2E\TikTokShop\Model\Order\Item\Repository $orderItemRepository,
@@ -21,7 +24,8 @@ class ShipmentService
         \M2E\TikTokShop\Model\Order\Shipment\ItemLoader $itemLoader,
         \M2E\TikTokShop\Model\Order\Change\Repository $orderChangeRepository,
         \M2E\TikTokShop\Model\Order\ChangeCreateService $orderChangeCreateService,
-        \Magento\Framework\UrlInterface $urlInterface
+        \Magento\Framework\UrlInterface $urlInterface,
+        \M2E\TikTokShop\Model\ShippingProvider\Repository $shippingProviderRepository
     ) {
         $this->trackingDetailsBuilder = $trackingDetailsBuilder;
         $this->itemLoader = $itemLoader;
@@ -29,6 +33,7 @@ class ShipmentService
         $this->orderChangeCreateService = $orderChangeCreateService;
         $this->urlInterface = $urlInterface;
         $this->orderItemRepository = $orderItemRepository;
+        $this->shippingProviderRepository = $shippingProviderRepository;
     }
 
     public function shipByShipment(
@@ -70,8 +75,7 @@ class ShipmentService
             return self::HANDLE_RESULT_FAILED;
         }
 
-        $shippingProviderMapping = $order->getWarehouse()->getShippingProviderMapping();
-        if (!$shippingProviderMapping->isConfigured()) {
+        if (!$this->getShippingProviderMapping($order)->isConfigured()) {
             $order->addErrorLog(
                 'Missing <a href="%url%" target="_blank">Shipping Carrier Mapping</a>. ' .
                 'Please ensure the shipping carrier mapping is correctly configured to synchronize ' .
@@ -91,8 +95,8 @@ class ShipmentService
         }
 
         $shippingProviderId = $this->findShippingProviderId(
-            $shippingProviderMapping,
-            $trackingDetails->getCarrierCode()
+            $order,
+            $trackingDetails
         );
         if ($shippingProviderId === null) {
             $order->addErrorLog(
@@ -184,14 +188,33 @@ class ShipmentService
     }
 
     private function findShippingProviderId(
-        \M2E\TikTokShop\Model\Warehouse\ShippingMapping $shippingProviderMapping,
-        string $carrierCode
+        \M2E\TikTokShop\Model\Order $order,
+        \M2E\TikTokShop\Model\Order\Shipment\Data\TrackingDetails $trackingDetails
     ): ?string {
-        $shippingProviderId = $shippingProviderMapping
-            ->getProviderIdByCarrierCode($carrierCode);
+        $shippingProviderId = $this->getShippingProviderMapping($order)
+            ->getProviderIdByCarrierCode($trackingDetails->getCarrierCode());
+
+        if (
+            $shippingProviderId === null
+            && $trackingDetails->isCustomCarrierCode()
+            && $order->getAccount()->getInvoiceAndShipmentSettings()->isMapShippingProviderByCustomCarrierTitle()
+        ) {
+            $shippingProvider = $this->shippingProviderRepository->findByAccountShopWarehouseAndTitle(
+                $order->getAccountId(),
+                $order->getShopId(),
+                $order->getWarehouse()->getId(),
+                $trackingDetails->getShippingMethod()
+            );
+
+            if ($shippingProvider !== null) {
+                $shippingProviderId = $shippingProvider->getShippingProviderId();
+            }
+        }
 
         if ($shippingProviderId === null) {
-            $shippingProviderId = $shippingProviderMapping->getDefaultProviderId();
+            $shippingProviderId = $this
+                ->getShippingProviderMapping($order)
+                ->getDefaultProviderId();
         }
 
         return $shippingProviderId;
@@ -239,5 +262,16 @@ class ShipmentService
         }
 
         $this->orderChangeRepository->delete($existOrderChange);
+    }
+
+    private function getShippingProviderMapping(
+        \M2E\TikTokShop\Model\Order $order
+    ): \M2E\TikTokShop\Model\Warehouse\ShippingMapping {
+        /** @psalm-suppress RedundantPropertyInitializationCheck */
+        if (!isset($this->shippingProviderMapping)) {
+            $this->shippingProviderMapping = $order->getWarehouse()->getShippingProviderMapping();
+        }
+
+        return $this->shippingProviderMapping;
     }
 }

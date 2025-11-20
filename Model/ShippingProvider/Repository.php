@@ -102,8 +102,49 @@ class Repository
         $collection->addFieldToFilter(ShippingProviderResource::COLUMN_ACCOUNT_ID, $object->getAccountId());
         $collection->addFieldToFilter(ShippingProviderResource::COLUMN_SHOP_ID, $object->getShopId());
         $collection->addFieldToFilter(ShippingProviderResource::COLUMN_WAREHOUSE_ID, $object->getWarehouseId());
-        $collection->addFieldToFilter(ShippingProviderResource::COLUMN_DELIVERY_OPTION_ID, $object->getDeliveryOptionId());
-        $collection->addFieldToFilter(ShippingProviderResource::COLUMN_SHIPPING_PROVIDER_ID, $object->getShippingProviderId());
+        $collection->addFieldToFilter(
+            ShippingProviderResource::COLUMN_DELIVERY_OPTION_ID,
+            $object->getDeliveryOptionId()
+        );
+        $collection->addFieldToFilter(
+            ShippingProviderResource::COLUMN_SHIPPING_PROVIDER_ID,
+            $object->getShippingProviderId()
+        );
+
+        /** @var \M2E\TikTokShop\Model\ShippingProvider $shippingProvider */
+        $shippingProvider = $collection->getFirstItem();
+
+        if ($shippingProvider->isObjectNew()) {
+            return null;
+        }
+
+        return $shippingProvider;
+    }
+
+    public function findByAccountShopWarehouseAndTitle(
+        int $accountId,
+        int $shopId,
+        int $warehouseId,
+        string $carrierTitle
+    ): ?\M2E\TikTokShop\Model\ShippingProvider {
+        $collection = $this->collectionFactory->create();
+        $collection->addFieldToFilter(
+            ShippingProviderResource::COLUMN_ACCOUNT_ID,
+            ['eq' => $accountId]
+        );
+        $collection->addFieldToFilter(
+            ShippingProviderResource::COLUMN_SHOP_ID,
+            ['eq' => $shopId]
+        );
+        $collection->addFieldToFilter(
+            ShippingProviderResource::COLUMN_WAREHOUSE_ID,
+            ['eq' => $warehouseId]
+        );
+
+        $collection->addFieldToFilter(
+            ShippingProviderResource::COLUMN_SHIPPING_PROVIDER_NAME,
+            ['eq' => $carrierTitle]
+        );
 
         /** @var \M2E\TikTokShop\Model\ShippingProvider $shippingProvider */
         $shippingProvider = $collection->getFirstItem();

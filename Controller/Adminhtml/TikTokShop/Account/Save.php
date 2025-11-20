@@ -58,9 +58,13 @@ class Save extends \M2E\TikTokShop\Controller\Adminhtml\TikTokShop\AbstractAccou
         $orderSettings = $account->getOrdersSettings()
                                  ->createWith($data['magento_orders_settings']);
 
-        $invoicesAndShipmentSettings = $account->getInvoiceAndShipmentSettings()
-                                               ->createWithMagentoShipment((bool)(int)$data['create_magento_shipment'])
-                                               ->createWithMagentoInvoice((bool)(int)$data['create_magento_invoice']);
+        $invoicesAndShipmentSettings = $account
+            ->getInvoiceAndShipmentSettings()
+            ->createWithMagentoShipment((bool)(int)$data['create_magento_shipment'])
+            ->createWithMagentoInvoice((bool)(int)$data['create_magento_invoice'])
+            ->createWithMapShippingProviderByCustomCarrierTitle(
+                (bool)(int)$data['map_shipping_provider_by_custom_carrier_title']
+            );
 
         try {
             $this->accountUpdate->updateSettings(

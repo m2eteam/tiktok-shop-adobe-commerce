@@ -98,7 +98,10 @@ class Config implements \M2E\Core\Model\Setup\Upgrade\Entity\ConfigInterface
             ],
             'y25_m10' => [
                 \M2E\TikTokShop\Setup\Update\y25_m10\AddSupportCPF::class,
-            ]
+            ],
+            'y25_m11' => [
+                \M2E\TikTokShop\Setup\Update\y25_m11\AddMapShippingProviderByCustomCarrierTitle::class,
+            ],
         ];
     }
 }
