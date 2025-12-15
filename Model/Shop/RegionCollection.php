@@ -27,7 +27,6 @@ class RegionCollection
                 Region::CURRENCY_EUR,
                 Region::SIZE_DIMENSION_CENTIMETER,
                 Region::WEIGHT_DIMENSION_KILOGRAM,
-                new Region\PackageWeightRestrictions(30, 'kg'),
                 new Region\ProductPriceRestrictions(0.01, 5600)
             );
         }

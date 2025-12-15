@@ -305,13 +305,14 @@ class ProxyObject
             $this->addressData['postcode'] = $rawAddressData['postcode'];
             $this->addressData['telephone'] = $rawAddressData['telephone'];
 
-            $rawStreets = array_filter($rawAddressData['street'] ?? []);
+            $rawStreets = $rawAddressData['street'] ?? [];
             $rawStreets = $this->sortStreetLinesForBrazil($rawStreets);
+            $rawStreets = array_filter($rawStreets);
             if (count($rawStreets) > $this->addressHelper->getStreetLines($this->order->getStore())) {
                 $rawStreets = [implode(', ', $rawStreets)];
             }
 
-            $this->addressData['street'] = $rawStreets;
+            $this->addressData['street'] = array_filter($rawStreets);
             $this->addressData['company'] = !empty($rawAddressData['company']) ? $rawAddressData['company'] : '';
             $this->addressData['save_in_address_book'] = 0;
             $this->addressData['vat_id'] = $this->order->getCpf();

@@ -166,9 +166,6 @@
                 <item name="category" xsi:type="object">
                     M2E\TikTokShop\Model\TikTokShop\Listing\Product\Action\Validator\CategoryValidator
                 </item>
-                <item name="package_weight" xsi:type="object">
-                    M2E\TikTokShop\Model\TikTokShop\Listing\Product\Action\Validator\PackageWeightValidator
-                </item>
                 <item name="package_size" xsi:type="object">
                     M2E\TikTokShop\Model\TikTokShop\Listing\Product\Action\Validator\PackageSizeValidator
                 </item>
@@ -193,9 +190,6 @@
                 <item name="images" xsi:type="object">
                     M2E\TikTokShop\Model\TikTokShop\Listing\Product\Action\Validator\ImagesValidator
                 </item>
-                <item name="package_weight" xsi:type="object">
-                    M2E\TikTokShop\Model\TikTokShop\Listing\Product\Action\Validator\PackageWeightValidator
-                </item>
                 <item name="package_size" xsi:type="object">
                     M2E\TikTokShop\Model\TikTokShop\Listing\Product\Action\Validator\PackageSizeValidator
                 </item>
@@ -216,9 +210,6 @@
                 </item>
                 <item name="images" xsi:type="object">
                     M2E\TikTokShop\Model\TikTokShop\Listing\Product\Action\Validator\ImagesValidator
-                </item>
-                <item name="package_weight" xsi:type="object">
-                    M2E\TikTokShop\Model\TikTokShop\Listing\Product\Action\Validator\PackageWeightValidator
                 </item>
                 <item name="package_size" xsi:type="object">
                     M2E\TikTokShop\Model\TikTokShop\Listing\Product\Action\Validator\PackageSizeValidator

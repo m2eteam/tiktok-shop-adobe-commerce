@@ -20,7 +20,6 @@ class Provider
                 Region::CURRENCY_GBP,
                 Region::SIZE_DIMENSION_CENTIMETER,
                 Region::WEIGHT_DIMENSION_KILOGRAM,
-                new PackageWeightRestrictions(30, 'kg'),
                 new ProductPriceRestrictions(0.01, 5600)
             ),
             new Region(
@@ -29,7 +28,6 @@ class Provider
                 Region::CURRENCY_USD,
                 Region::SIZE_DIMENSION_INCH,
                 Region::WEIGHT_DIMENSION_POUND,
-                new PackageWeightRestrictions(150, 'lb'),
                 new ProductPriceRestrictions(0.01, 7600)
             ),
             new Region(
@@ -38,7 +36,6 @@ class Provider
                 Region::CURRENCY_EUR,
                 Region::SIZE_DIMENSION_CENTIMETER,
                 Region::WEIGHT_DIMENSION_KILOGRAM,
-                new PackageWeightRestrictions(30, 'kg'),
                 new ProductPriceRestrictions(0.01, 6300)
             ),
             new Region(
@@ -47,7 +44,6 @@ class Provider
                 Region::CURRENCY_EUR,
                 Region::SIZE_DIMENSION_CENTIMETER,
                 Region::WEIGHT_DIMENSION_KILOGRAM,
-                new PackageWeightRestrictions(30, 'kg'),
                 new ProductPriceRestrictions(0.01, 6300)
             ),
             new Region(
@@ -56,7 +52,6 @@ class Provider
                 Region::CURRENCY_MXN,
                 Region::SIZE_DIMENSION_CENTIMETER,
                 Region::WEIGHT_DIMENSION_KILOGRAM,
-                new PackageWeightRestrictions(30, 'kg'),
                 new ProductPriceRestrictions(0.1, 50000)
             ),
             new Region(
@@ -65,7 +60,6 @@ class Provider
                 Region::CURRENCY_EUR,
                 Region::SIZE_DIMENSION_CENTIMETER,
                 Region::WEIGHT_DIMENSION_KILOGRAM,
-                new PackageWeightRestrictions(30, 'kg'),
                 new ProductPriceRestrictions(0.01, 6300)
             ),
             new Region(
@@ -74,7 +68,6 @@ class Provider
                 Region::CURRENCY_EUR,
                 Region::SIZE_DIMENSION_CENTIMETER,
                 Region::WEIGHT_DIMENSION_KILOGRAM,
-                new PackageWeightRestrictions(30, 'kg'),
                 new ProductPriceRestrictions(0.01, 6300)
             ),
             new Region(
@@ -83,7 +76,6 @@ class Provider
                 Region::CURRENCY_EUR,
                 Region::SIZE_DIMENSION_CENTIMETER,
                 Region::WEIGHT_DIMENSION_KILOGRAM,
-                new PackageWeightRestrictions(30, 'kg'),
                 new ProductPriceRestrictions(0.01, 6300)
             ),
             new Region(
@@ -92,7 +84,6 @@ class Provider
                 Region::CURRENCY_BRL,
                 Region::SIZE_DIMENSION_CENTIMETER,
                 Region::WEIGHT_DIMENSION_KILOGRAM,
-                new PackageWeightRestrictions(30, 'kg'),
                 new ProductPriceRestrictions(0.05, 10000)
             ),
         ];

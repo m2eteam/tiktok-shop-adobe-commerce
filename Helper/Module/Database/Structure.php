@@ -369,7 +369,7 @@ class Structure
             $object = $this->objectManager->get($className);
 
             $tableName = $object->getMainTable();
-            $tableName = str_replace($this->magentoHelper->getDatabaseTablesPrefix(), '', $tableName);
+            $tableName = $this->getTableNameWithoutPrefix($tableName);
 
             $tablesModels[$tableName] = $className;
         }
@@ -431,11 +431,14 @@ class Structure
      */
     public function getTableNameWithoutPrefix(string $tableName)
     {
-        return str_replace(
-            $this->magentoHelper->getDatabaseTablesPrefix(),
-            '',
-            $this->getTableNameWithPrefix($tableName)
-        );
+        $tableName = $this->getTableNameWithPrefix($tableName);
+
+        $prefix = $this->magentoHelper->getDatabaseTablesPrefix();
+        if (substr($tableName, 0, strlen($prefix)) !== $prefix) {
+            return $tableName;
+        }
+
+        return substr($tableName, strlen($prefix));
     }
 
     /**
@@ -459,9 +462,9 @@ class Structure
         foreach ($collection['items'] as $item) {
             $codeHash = strtolower($item['group']) . '#' . strtolower($item['key']);
             $result[$codeHash] = [
-                'id'    => (int)$item['id'],
+                'id' => (int)$item['id'],
                 'group' => $item['group'],
-                'key'   => $item['key'],
+                'key' => $item['key'],
                 'value' => $item['value'],
             ];
         }

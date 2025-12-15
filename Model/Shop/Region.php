@@ -46,7 +46,6 @@ class Region
     private string $currency;
     private string $sizeDimension;
     private string $weightDimension;
-    private \M2E\TikTokShop\Model\Shop\Region\PackageWeightRestrictions $packageWeightRestrictions;
     private \M2E\TikTokShop\Model\Shop\Region\ProductPriceRestrictions $productPriceRestrictions;
 
     public function __construct(
@@ -55,7 +54,6 @@ class Region
         string $currency,
         string $sizeDimension,
         string $weightDimension,
-        \M2E\TikTokShop\Model\Shop\Region\PackageWeightRestrictions $packageWeightRestrictions,
         \M2E\TikTokShop\Model\Shop\Region\ProductPriceRestrictions $productPriceRestrictions
     ) {
         $this->regionCode = $regionCode;
@@ -63,7 +61,6 @@ class Region
         $this->currency = $currency;
         $this->sizeDimension = $sizeDimension;
         $this->weightDimension = $weightDimension;
-        $this->packageWeightRestrictions = $packageWeightRestrictions;
         $this->productPriceRestrictions = $productPriceRestrictions;
     }
 
@@ -90,11 +87,6 @@ class Region
     public function getWeightDimension(): string
     {
         return $this->weightDimension;
-    }
-
-    public function getPackageWeightRestrictions(): Region\PackageWeightRestrictions
-    {
-        return $this->packageWeightRestrictions;
     }
 
     public function getProductPriceRestrictions(): Region\ProductPriceRestrictions
