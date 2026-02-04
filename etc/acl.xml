@@ -5,44 +5,42 @@
 
     <acl>
         <resources>
-            <resource id="Magento_Backend::admin" title="TikTok Shop">
-
+            <resource id="Magento_Backend::admin">
+                <!-- Integration ACL -->
                 <resource id="M2E_TikTokShop::tts" title="TikTok Shop Integration" sortOrder="61">
-
                     <!-- Listing -->
-
                     <resource id="M2E_TikTokShop::listings" title="Listings" sortOrder="1">
                         <resource id="M2E_TikTokShop::listings_items" title="Items" sortOrder="1"/>
                         <resource id="M2E_TikTokShop::listings_logs" title="Logs &#38; Events" sortOrder="2"/>
                     </resource>
-
                     <!-- Sales -->
-
                     <resource id="M2E_TikTokShop::sales" title="Sales" sortOrder="2">
                         <resource id="M2E_TikTokShop::sales_orders" title="Orders" sortOrder="1"/>
                         <resource id="M2E_TikTokShop::sales_logs" title="Logs &#38; Events" sortOrder="2"/>
                     </resource>
-
                     <!-- Configuration -->
-
                     <resource id="M2E_TikTokShop::configuration" title="Configuration" sortOrder="3">
                         <resource id="M2E_TikTokShop::configuration_accounts" title="Accounts" sortOrder="1"/>
                         <resource id="M2E_TikTokShop::configuration_categories" title="Categories" sortOrder="2"/>
                         <resource id="M2E_TikTokShop::configuration_templates" title="Policies" sortOrder="3"/>
                         <resource id="M2E_TikTokShop::configuration_settings" title="Settings" sortOrder="4"/>
                     </resource>
-
-                    <!-- help center acl -->
-
+                    <!-- Help Center -->
                     <resource id="M2E_TikTokShop::help_center" title="Help Center" sortOrder="4">
                         <resource id="M2E_TikTokShop::help_center_health_status" title="Health Status" sortOrder="1"/>
                         <resource id="M2E_TikTokShop::help_center_synchronization_log" title="Synchronization Logs"
                                   sortOrder="2"/>
                         <resource id="M2E_TikTokShop::help_center_m2e_support" title="M2E Support" sortOrder="3"/>
                     </resource>
-
                 </resource>
-
+                <!-- System Configuration ACL -->
+                <resource id="Magento_Backend::stores">
+                    <resource id="Magento_Backend::stores_settings">
+                        <resource id="Magento_Config::config">
+                            <resource id="M2E_TikTokShop::system_configuration" title="TikTokShop Connect" sortOrder="450" />
+                        </resource>
+                    </resource>
+                </resource>
             </resource>
         </resources>
     </acl>
