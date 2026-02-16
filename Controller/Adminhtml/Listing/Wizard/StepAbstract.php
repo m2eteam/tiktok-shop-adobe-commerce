@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace M2E\TikTokShop\Controller\Adminhtml\Listing\Wizard;
 
-abstract class StepAbstract extends \M2E\TikTokShop\Controller\Adminhtml\AbstractListing
+abstract class StepAbstract extends \M2E\TikTokShop\Controller\Adminhtml\TikTokShop\AbstractListing
 {
     use WizardTrait;
 

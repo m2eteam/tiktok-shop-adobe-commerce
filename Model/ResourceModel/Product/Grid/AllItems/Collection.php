@@ -8,21 +8,25 @@ use M2E\TikTokShop\Model\ResourceModel\Account as AccountResource;
 use M2E\TikTokShop\Model\ResourceModel\Listing as ListingResource;
 use M2E\TikTokShop\Model\ResourceModel\Product as ListingProductResource;
 use M2E\TikTokShop\Model\ResourceModel\Product as ProductResource;
+use M2E\TikTokShop\Model\ResourceModel\Product\VariantSku as VariantSkuResource;
 use M2E\TikTokShop\Model\ResourceModel\Promotion as PromotionResource;
-use M2E\TikTokShop\Model\ResourceModel\Shop as ShopResource;
-use M2E\TikTokShop\Model\ResourceModel\Tag\ListingProduct\Relation as TagProductRelationResource;
-use M2E\TikTokShop\Model\ResourceModel\Tag as TagResource;
-use Magento\Framework\Api\Search\SearchResultInterface;
 use M2E\TikTokShop\Model\ResourceModel\Promotion\Product as PromotionProductResource;
+use M2E\TikTokShop\Model\ResourceModel\Shop as ShopResource;
+use M2E\TikTokShop\Model\ResourceModel\Tag as TagResource;
+use M2E\TikTokShop\Model\ResourceModel\Tag\ListingProduct\Relation as TagProductRelationResource;
+use Magento\Framework\Api\Search\SearchResultInterface;
 
 class Collection extends \Magento\Framework\Data\Collection implements SearchResultInterface
 {
     use \M2E\TikTokShop\Model\ResourceModel\SearchResultTrait;
 
+    private const FIELDS_SEARCH_IN_VARIANTS = ['entity_id', 'sku', 'name'];
+
     public const PRIMARY_COLUMN = 'product_id';
     public const FILTER_BY_ERROR_CODE_FILED_NAME = 'error_code'; // see ui xml
 
     private bool $isAlreadyFilteredByErrorCode = false;
+    private array $variantSkuFilters = [];
 
     /** @var \M2E\TikTokShop\Model\ResourceModel\Product */
     private ProductResource $listingProductResource;
@@ -41,6 +45,9 @@ class Collection extends \Magento\Framework\Data\Collection implements SearchRes
     private \M2E\TikTokShop\Model\ResourceModel\Promotion\Product $promotionProductResource;
     private \M2E\TikTokShop\Model\ResourceModel\Promotion $promotionResource;
     private \M2E\TikTokShop\Model\Shop\RegionCollection $regionCollection;
+    private \M2E\TikTokShop\Model\ResourceModel\Magento\Product\CollectionFactory $magentoProductCollectionFactory;
+    /** @var VariantSkuResource */
+    private ProductResource\VariantSku $variantSkuResource;
 
     public function __construct(
         ProductResource $listingProductResource,
@@ -54,6 +61,7 @@ class Collection extends \Magento\Framework\Data\Collection implements SearchRes
         \M2E\TikTokShop\Model\ResourceModel\Promotion\Product $promotionProductResource,
         \M2E\TikTokShop\Model\ResourceModel\Promotion $promotionResource,
         \M2E\TikTokShop\Model\Shop\RegionCollection $regionCollection,
+        VariantSkuResource $variantSkuResource,
         \Magento\Framework\Data\Collection\EntityFactoryInterface $entityFactory
     ) {
         parent::__construct($entityFactory);
@@ -68,6 +76,8 @@ class Collection extends \Magento\Framework\Data\Collection implements SearchRes
         $this->promotionProductResource = $promotionProductResource;
         $this->promotionResource = $promotionResource;
         $this->regionCollection = $regionCollection;
+        $this->magentoProductCollectionFactory = $magentoProductCollectionFactory;
+        $this->variantSkuResource = $variantSkuResource;
         $this->prepareCollection();
     }
 
@@ -177,6 +187,8 @@ class Collection extends \Magento\Framework\Data\Collection implements SearchRes
 
     public function getItems()
     {
+        $this->joinVariantSkuCollectionIfNeed();
+
         $items = $this->wrappedCollection->getItems();
         $productIds = [];
         foreach ($items as $item) {
@@ -204,6 +216,12 @@ class Collection extends \Magento\Framework\Data\Collection implements SearchRes
 
     public function addFieldToFilter($field, $condition)
     {
+        if (in_array($field, self::FIELDS_SEARCH_IN_VARIANTS, true)) {
+            $this->addFilterForVariantSku($field, $condition);
+
+            return $this;
+        }
+
         if ($field === 'product_online_price') {
             $this->buildFilterByPrice($condition);
 
@@ -225,6 +243,14 @@ class Collection extends \Magento\Framework\Data\Collection implements SearchRes
         $this->wrappedCollection->addFieldToFilter($field, $condition);
 
         return $this;
+    }
+
+    private function addFilterForVariantSku($field, $condition)
+    {
+        $this->variantSkuFilters[] = [
+            'field' => $field,
+            'condition' => $condition
+        ];
     }
 
     private function buildFilterByPrice($condition): void
@@ -365,5 +391,66 @@ class Collection extends \Magento\Framework\Data\Collection implements SearchRes
         );
 
         return (string)$currencyExpression;
+    }
+
+    // ----------------------------------------
+
+    private function createVariantSkuCollection(): \M2E\TikTokShop\Model\ResourceModel\Magento\Product\Collection
+    {
+        $collection = $this->magentoProductCollectionFactory->create();
+        $collection->distinct(true);
+        $collection->joinTable(
+            ['variant_sku' => $this->variantSkuResource->getMainTable()],
+            sprintf('%s = entity_id', VariantSkuResource::COLUMN_MAGENTO_PRODUCT_ID),
+            [VariantSkuResource::COLUMN_MAGENTO_PRODUCT_ID]
+        );
+
+        foreach ($this->variantSkuFilters as $filter) {
+            $collection->addFieldToFilter($filter['field'], $filter['condition']);
+        }
+
+        $collection->getSelect()->reset(\Magento\Framework\DB\Select::COLUMNS);
+        $collection->getSelect()->columns([
+            'founded_in_variation' => new \Zend_Db_Expr('1'),
+            'product_id' => sprintf('variant_sku.%s', VariantSkuResource::COLUMN_PRODUCT_ID),
+        ]);
+
+        return $collection;
+    }
+
+    /**
+     * JOIN variant_sku table and append to main collection two columns.
+     * - founded_in_variation - 1 if product founded in variant_sku table;
+     * - founded_in_parent - 1 if product founded in product table
+     *
+     * @return void
+     * @throws \Zend_Db_Select_Exception
+     */
+    private function joinVariantSkuCollectionIfNeed(): void
+    {
+        if (empty($this->variantSkuFilters)) {
+            return;
+        }
+
+        $variantSkuCollection = $this->createVariantSkuCollection();
+
+        $this->wrappedCollection->getSelect()->joinLeft(
+            ['variants' => $variantSkuCollection->getSelectSql()],
+            sprintf('variants.product_id = listing_product.%s', ProductResource::COLUMN_ID),
+            ['founded_in_variation' => 'founded_in_variation'],
+        );
+
+        $andSqlConditionParts = [];
+        foreach ($this->variantSkuFilters as $filter) {
+            $andSqlConditionParts[] = $this->wrappedCollection
+                ->getAttributeConditionSql($filter['field'], $filter['condition']);
+        }
+
+        $andConditionSql = '(' . implode(') AND (', $andSqlConditionParts) . ')';
+
+        $this->wrappedCollection
+            ->getSelect()
+            ->columns(['founded_in_parent' => new \Zend_Db_Expr($andConditionSql)])
+            ->where('(' . $andConditionSql . ') OR variants.founded_in_variation = 1');
     }
 }

@@ -267,4 +267,9 @@ class Collection extends \Magento\Catalog\Model\ResourceModel\Product\Collection
 
         return parent::_getAttributeConditionSql($attribute, $condition, $joinType);
     }
+
+    public function getAttributeConditionSql($attribute, $condition, $joinType = 'inner'): string
+    {
+        return $this->_getAttributeConditionSql($attribute, $condition, $joinType);
+    }
 }

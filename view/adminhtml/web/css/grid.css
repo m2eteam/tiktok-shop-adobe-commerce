@@ -205,3 +205,10 @@ button.action-default.scalable.task[title="Export"]:before {
 }
 
 /* ================================================ */
+
+.all-items-manage-column .data-grid-cell-content {
+    overflow: initial;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

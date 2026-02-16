@@ -427,6 +427,7 @@
                     <item name="label" translate="true" xsi:type="string">Manage</item>
                     <item name="bodyTmpl" xsi:type="string">ui/grid/cells/html</item>
                     <item name="exportable" xsi:type="boolean">false</item>
+                    <item name="fieldClass" xsi:type="string">all-items-manage-column</item>
                 </item>
             </argument>
         </column>
