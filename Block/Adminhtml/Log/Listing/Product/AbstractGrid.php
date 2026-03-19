@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace M2E\TikTokShop\Block\Adminhtml\Log\Listing\Product;
 
 abstract class AbstractGrid extends \M2E\TikTokShop\Block\Adminhtml\Log\Listing\AbstractGrid
@@ -31,6 +33,11 @@ abstract class AbstractGrid extends \M2E\TikTokShop\Block\Adminhtml\Log\Listing\
         );
         $this->accountResource = $accountResource;
     }
+
+    /**
+     * Implements by using traits
+     */
+    abstract protected function getExcludedActionTitles(): array;
 
     public function _construct()
     {
@@ -198,16 +205,24 @@ abstract class AbstractGrid extends \M2E\TikTokShop\Block\Adminhtml\Log\Listing\
 
     public function callbackColumnProductTitleID($value, $row, $column, $isExport)
     {
-        if (!$row->getData('product_id')) {
+        $magentoProductId = $row->getData('product_id');
+        if (!$magentoProductId) {
             return $value;
         }
 
-        $url = $this->getUrl('catalog/product/edit', ['id' => $row->getData('product_id')]);
-        $value = '<a target="_blank" href="' . $url . '" target="_blank">' .
-            \M2E\Core\Helper\Data::escapeHtml($value) .
-            '</a><br/>ID: ' . $row->getData('product_id');
+        $magentoProductUrlParams = ['id' => $magentoProductId];
+        $magentoProductStoreId = $row->getData('store_id');
+        if ($magentoProductStoreId) {
+            $magentoProductUrlParams['store'] = $magentoProductStoreId;
+        }
 
-        return $value;
+        $productLink = sprintf(
+            '<a href="%s" target="_blank">%s</a>',
+            $this->getUrl('catalog/product/edit', $magentoProductUrlParams),
+            \M2E\Core\Helper\Data::escapeHtml($value)
+        );
+
+        return sprintf('%s<br/>ID: %s', $productLink, $magentoProductId);
     }
 
     public function callbackColumnCreateDate($value, $row, $column, $isExport)
@@ -259,11 +274,6 @@ abstract class AbstractGrid extends \M2E\TikTokShop\Block\Adminhtml\Log\Listing\
 
         $collection->getSelect()->where('main_table.additional_data LIKE ?', '%' . $value . '%');
     }
-
-    /**
-     * Implements by using traits
-     */
-    abstract protected function getExcludedActionTitles(): array;
 
     // ---------------------------------------
 

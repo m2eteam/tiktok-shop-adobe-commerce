@@ -6,30 +6,43 @@ namespace M2E\TikTokShop\Model\Product\PackageDimension;
 
 class NotFoundAttributeValueException extends PackageDimensionException
 {
-    public function __construct(string $type, string $attributeCode)
+    public static function createPackageWeightException(string $attributeCode): self
     {
         $message = (string)__(
-            '%1: Attribute %2 were not found in this Product and its value was not sent.',
-            $this->getAttributeTitleByType($type),
-            $attributeCode,
+            'Package weight: Attribute %attribute_code were not found in this Product and its value was not sent.',
+            ['attribute_code' => $attributeCode]
         );
 
-        parent::__construct($message);
+        return new self($message);
     }
 
-    private function getAttributeTitleByType(string $type): string
+    public static function createPackageLengthException(string $attributeCode): self
     {
-        switch ($type) {
-            case \M2E\TikTokShop\Helper\Component\TikTokShop\Configuration::DIMENSION_TYPE_WEIGHT:
-                return (string)__('Package weight');
-            case \M2E\TikTokShop\Helper\Component\TikTokShop\Configuration::DIMENSION_TYPE_LENGTH:
-                return (string)__('Package length');
-            case \M2E\TikTokShop\Helper\Component\TikTokShop\Configuration::DIMENSION_TYPE_WIDTH:
-                return (string)__('Package width');
-            case \M2E\TikTokShop\Helper\Component\TikTokShop\Configuration::DIMENSION_TYPE_HEIGHT:
-                return (string)__('Package height');
-            default:
-                return (string)__('N/A');
-        }
+        $message = (string)__(
+            'Package length: Attribute %attribute_code were not found in this Product and its value was not sent.',
+            ['attribute_code' => $attributeCode]
+        );
+
+        return new self($message);
+    }
+
+    public static function createPackageWidthException(string $attributeCode): self
+    {
+        $message = (string)__(
+            'Package width: Attribute %attribute_code were not found in this Product and its value was not sent.',
+            ['attribute_code' => $attributeCode]
+        );
+
+        return new self($message);
+    }
+
+    public static function createPackageHeightException(string $attributeCode): self
+    {
+        $message = (string)__(
+            'Package height: Attribute %attribute_code were not found in this Product and its value was not sent.',
+            ['attribute_code' => $attributeCode]
+        );
+
+        return new self($message);
     }
 }

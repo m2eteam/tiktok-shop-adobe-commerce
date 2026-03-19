@@ -264,7 +264,10 @@ class Repository
     public function getCountOfListedProducts(): int
     {
         $collection = $this->listingProductCollectionFactory->create();
-        $collection->addFieldToFilter(ListingProductResource::COLUMN_STATUS, \M2E\TikTokShop\Model\Product::STATUS_LISTED);
+        $collection->addFieldToFilter(
+            ListingProductResource::COLUMN_STATUS,
+            \M2E\TikTokShop\Model\Product::STATUS_LISTED
+        );
 
         return (int)$collection->getSize();
     }
@@ -272,7 +275,10 @@ class Repository
     public function getCountOfNotListedProducts(): int
     {
         $collection = $this->listingProductCollectionFactory->create();
-        $collection->addFieldToFilter(ListingProductResource::COLUMN_STATUS, ['neq' => \M2E\TikTokShop\Model\Product::STATUS_LISTED]);
+        $collection->addFieldToFilter(
+            ListingProductResource::COLUMN_STATUS,
+            ['neq' => \M2E\TikTokShop\Model\Product::STATUS_LISTED]
+        );
 
         return (int)$collection->getSize();
     }
@@ -482,36 +488,47 @@ class Repository
      */
     public function findRemovedMagentoProductIds(int $limit): array
     {
-        $collection = $this->listingProductCollectionFactory->create();
-
-        $collection->getSelect()
-                   ->reset(\Magento\Framework\DB\Select::COLUMNS);
-        $collection->getSelect()
-                   ->columns(
-                       ListingProductResource::COLUMN_MAGENTO_PRODUCT_ID,
-                   );
-        $collection->getSelect()
-                   ->distinct();
-
         $entityTableName = $this->dbStructureHelper->getTableNameWithPrefix('catalog_product_entity');
 
-        $collection->getSelect()
-                   ->joinLeft(
-                       ['cpe' => $entityTableName],
-                       sprintf(
-                           'cpe.entity_id = `main_table`.%s',
-                           ListingProductResource::COLUMN_MAGENTO_PRODUCT_ID,
-                       ),
-                       [],
-                   );
+        $productCollection = $this->listingProductCollectionFactory->create();
+        $productCollectionSelect = $productCollection->getSelect();
+        $productCollectionSelect
+            ->reset(\Magento\Framework\DB\Select::COLUMNS)
+            ->columns(ListingProductResource::COLUMN_MAGENTO_PRODUCT_ID)
+            ->joinLeft(
+                ['cpe' => $entityTableName],
+                sprintf(
+                    'cpe.entity_id = `main_table`.%s',
+                    ListingProductResource::COLUMN_MAGENTO_PRODUCT_ID,
+                ),
+                [],
+            )
+            ->where('cpe.entity_id IS NULL');
 
-        $collection->getSelect()
-                   ->where('cpe.entity_id IS NULL');
-        $collection->getSelect()
-                   ->limit($limit);
+        $variantCollection = $this->variantSkuCollectionFactory->create();
+        $variantCollectionSelect = $variantCollection->getSelect();
+        $variantCollectionSelect
+            ->reset(\Magento\Framework\DB\Select::COLUMNS)
+            ->columns(VariantSkuResource::COLUMN_MAGENTO_PRODUCT_ID)
+            ->joinLeft(
+                ['cpe' => $entityTableName],
+                sprintf(
+                    'cpe.entity_id = `main_table`.%s',
+                    ListingProductResource::COLUMN_MAGENTO_PRODUCT_ID,
+                ),
+                [],
+            )
+            ->where('cpe.entity_id IS NULL');
+
+        $unionSelect = $productCollection
+            ->getConnection()
+            ->select()
+            ->union([$productCollectionSelect, $variantCollectionSelect])
+            ->distinct()
+            ->limit($limit);
 
         $result = [];
-        foreach ($collection->toArray()['items'] ?? [] as $row) {
+        foreach ($unionSelect->query()->fetchAll() as $row) {
             $result[] = (int)$row[ListingProductResource::COLUMN_MAGENTO_PRODUCT_ID];
         }
 
@@ -684,7 +701,10 @@ class Repository
         $collection = $this->listingProductCollectionFactory->create();
         $collection->addFieldToFilter(ListingProductResource::COLUMN_TEMPLATE_CATEGORY_ID, $templateCategoryId);
         $collection->addFieldToFilter(ListingProductResource::COLUMN_IS_VALID_CATEGORY_ATTRIBUTES, ['null' => true]);
-        $collection->addFieldToFilter(ListingProductResource::COLUMN_STATUS, \M2E\TikTokShop\Model\Product::STATUS_NOT_LISTED);
+        $collection->addFieldToFilter(
+            ListingProductResource::COLUMN_STATUS,
+            \M2E\TikTokShop\Model\Product::STATUS_NOT_LISTED
+        );
 
         $collection->getSelect()->limit($limit);
 

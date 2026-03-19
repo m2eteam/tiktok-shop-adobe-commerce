@@ -6,40 +6,39 @@ namespace M2E\TikTokShop\Model\Product\PackageDimension;
 
 class NotConfiguredException extends PackageDimensionException
 {
-    public function __construct(string $type)
+    public static function createPackageWeightException(): self
     {
-        $messageData = $this->getMessageByType($type);
-        parent::__construct($messageData['text'], [], $messageData['code']);
+        return new self(
+            (string)__('Package Weight not configured'),
+            [],
+            PackageDimensionException::CODE_WEIGHT_NOT_CONFIGURED
+        );
     }
 
-    private function getMessageByType(string $type): array
+    public static function createPackageLengthException(): self
     {
-        switch ($type) {
-            case \M2E\TikTokShop\Helper\Component\TikTokShop\Configuration::DIMENSION_TYPE_WEIGHT:
-                return [
-                    'text' => (string)__('Package Weight not configured'),
-                    'code' => self::CODE_WEIGHT_NOT_CONFIGURED
-                ];
-            case \M2E\TikTokShop\Helper\Component\TikTokShop\Configuration::DIMENSION_TYPE_LENGTH:
-                return [
-                    'text' => (string)__('Package Length not configured'),
-                    'code' => self::CODE_LENGTH_NOT_CONFIGURED
-                ];
-            case \M2E\TikTokShop\Helper\Component\TikTokShop\Configuration::DIMENSION_TYPE_WIDTH:
-                return [
-                    'text' => (string)__('Package Width not configured'),
-                    'code' => self::CODE_WIDTH_NOT_CONFIGURED
-                ];
-            case \M2E\TikTokShop\Helper\Component\TikTokShop\Configuration::DIMENSION_TYPE_HEIGHT:
-                return [
-                    'text' => (string)__('Package Height not configured'),
-                    'code' => self::CODE_HEIGHT_NOT_CONFIGURED
-                ];
-            default:
-                return [
-                    'text' => (string)__('N/A'),
-                    'code' => 0
-                ];
-        }
+        return new self(
+            (string)__('Package Length not configured'),
+            [],
+            PackageDimensionException::CODE_LENGTH_NOT_CONFIGURED
+        );
+    }
+
+    public static function createPackageWidthException(): self
+    {
+        return new self(
+            (string)__('Package Width not configured'),
+            [],
+            PackageDimensionException::CODE_WIDTH_NOT_CONFIGURED
+        );
+    }
+
+    public static function createPackageHeightException(): self
+    {
+        return new self(
+            (string)__('Package Height not configured'),
+            [],
+            PackageDimensionException::CODE_HEIGHT_NOT_CONFIGURED
+        );
     }
 }

@@ -4,6 +4,9 @@ namespace M2E\TikTokShop\Controller\Adminhtml;
 
 use Magento\Backend\App\Action;
 
+/**
+ * @method \Magento\Framework\App\Request\Http getRequest()
+ */
 abstract class AbstractBase extends Action
 {
     public const LAYOUT_ONE_COLUMN = '1column';

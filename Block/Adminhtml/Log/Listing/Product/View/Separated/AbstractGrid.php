@@ -7,9 +7,11 @@ use M2E\TikTokShop\Block\Adminhtml\Log\Listing\View;
 abstract class AbstractGrid extends \M2E\TikTokShop\Block\Adminhtml\Log\Listing\Product\AbstractGrid
 {
     private \M2E\TikTokShop\Model\ResourceModel\Listing\Log\CollectionFactory $listingLogCollectionFactory;
+    private \M2E\TikTokShop\Model\ResourceModel\Listing $listingResource;
 
     public function __construct(
         \M2E\TikTokShop\Model\ResourceModel\Listing\Log\CollectionFactory $listingLogCollectionFactory,
+        \M2E\TikTokShop\Model\ResourceModel\Listing $listingResource,
         \M2E\TikTokShop\Model\ResourceModel\Account $accountResource,
         \M2E\TikTokShop\Model\Config\Manager $config,
         \M2E\TikTokShop\Model\ResourceModel\Collection\WrapperFactory $wrapperCollectionFactory,
@@ -34,6 +36,7 @@ abstract class AbstractGrid extends \M2E\TikTokShop\Block\Adminhtml\Log\Listing\
             $data,
         );
         $this->listingLogCollectionFactory = $listingLogCollectionFactory;
+        $this->listingResource = $listingResource;
     }
 
     protected function getViewMode()
@@ -44,6 +47,17 @@ abstract class AbstractGrid extends \M2E\TikTokShop\Block\Adminhtml\Log\Listing\
     protected function _prepareCollection()
     {
         $collection = $this->listingLogCollectionFactory->create();
+        $collection->joinLeft(
+            ['listing' => $this->listingResource->getMainTable()],
+            sprintf(
+                '%s = listing.%s',
+                \M2E\TikTokShop\Model\ResourceModel\Listing\Log::COLUMN_LISTING_ID,
+                \M2E\TikTokShop\Model\ResourceModel\Listing::COLUMN_ID
+            ),
+            [
+                \M2E\TikTokShop\Model\ResourceModel\Listing::COLUMN_STORE_ID,
+            ]
+        );
 
         $this->applyFilters($collection);
 

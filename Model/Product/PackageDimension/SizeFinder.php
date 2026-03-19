@@ -4,8 +4,16 @@ declare(strict_types=1);
 
 namespace M2E\TikTokShop\Model\Product\PackageDimension;
 
-class SizeFinder extends AbstractDimensionFinder
+class SizeFinder
 {
+    private \M2E\TikTokShop\Model\TikTokShop\Settings\Repository $settingsRepository;
+
+    public function __construct(
+        \M2E\TikTokShop\Model\TikTokShop\Settings\Repository $settingsRepository
+    ) {
+        $this->settingsRepository = $settingsRepository;
+    }
+
     /**
      * @throws \M2E\TikTokShop\Model\Product\PackageDimension\PackageDimensionException
      */
@@ -41,10 +49,15 @@ class SizeFinder extends AbstractDimensionFinder
         }
 
         if (count($childSizes) === 0) {
+            $message = (string)__(
+                'Package Dimensions are missing. To list the Product, please make sure that the ' .
+                'Package settings are correct.'
+            );
+
             throw new PackageDimensionException(
-                (string)__('Package Dimensions are missing. To list the Product, please make sure that the Package settings are correct.'),
+                $message,
                 [],
-                \M2E\TikTokShop\Model\Product\PackageDimension\PackageDimensionException::CODE_DIMENSIONS_MISSING
+                PackageDimensionException::CODE_DIMENSIONS_MISSING
             );
         }
 
@@ -59,12 +72,34 @@ class SizeFinder extends AbstractDimensionFinder
      */
     private function getPackageLength(\M2E\TikTokShop\Model\Magento\Product $magentoProduct): string
     {
-        return (string)$this->toInteger(
-            $this->getPackageDimensionValue(
-                \M2E\TikTokShop\Helper\Component\TikTokShop\Configuration::DIMENSION_TYPE_LENGTH,
-                $magentoProduct
-            )
-        );
+        $packageLengthSettings = $this->settingsRepository->getPackageLength();
+
+        if ($packageLengthSettings->isModeCustomValue()) {
+            $customValue = $packageLengthSettings->getCustomValue();
+
+            if (empty($customValue)) {
+                throw NotConfiguredException::createPackageLengthException();
+            }
+
+            return (string)$this->toInteger($customValue);
+        }
+
+        if ($packageLengthSettings->isModeCustomAttribute()) {
+            $attributeCode = $packageLengthSettings->getCustomAttribute();
+            if (empty($attributeCode)) {
+                throw NotConfiguredException::createPackageLengthException();
+            }
+
+            $attributeValue = (float)$magentoProduct->getAttributeValue($attributeCode);
+
+            if (empty($attributeValue)) {
+                throw NotFoundAttributeValueException::createPackageLengthException($attributeCode);
+            }
+
+            return (string)$this->toInteger($attributeValue);
+        }
+
+        throw NotConfiguredException::createPackageLengthException();
     }
 
     /**
@@ -73,12 +108,34 @@ class SizeFinder extends AbstractDimensionFinder
      */
     private function getPackageWidth(\M2E\TikTokShop\Model\Magento\Product $magentoProduct): string
     {
-        return (string)$this->toInteger(
-            $this->getPackageDimensionValue(
-                \M2E\TikTokShop\Helper\Component\TikTokShop\Configuration::DIMENSION_TYPE_WIDTH,
-                $magentoProduct
-            )
-        );
+        $packageWidthSettings = $this->settingsRepository->getPackageWidth();
+
+        if ($packageWidthSettings->isModeCustomValue()) {
+            $customValue = $packageWidthSettings->getCustomValue();
+
+            if (empty($customValue)) {
+                throw NotConfiguredException::createPackageWidthException();
+            }
+
+            return (string)$this->toInteger($customValue);
+        }
+
+        if ($packageWidthSettings->isModeCustomAttribute()) {
+            $attributeCode = $packageWidthSettings->getCustomAttribute();
+            if (empty($attributeCode)) {
+                throw NotConfiguredException::createPackageWidthException();
+            }
+
+            $attributeValue = (float)$magentoProduct->getAttributeValue($attributeCode);
+
+            if (empty($attributeValue)) {
+                throw NotFoundAttributeValueException::createPackageWidthException($attributeCode);
+            }
+
+            return (string)$this->toInteger($attributeValue);
+        }
+
+        throw NotConfiguredException::createPackageWidthException();
     }
 
     /**
@@ -87,12 +144,39 @@ class SizeFinder extends AbstractDimensionFinder
      */
     private function getPackageHeight(\M2E\TikTokShop\Model\Magento\Product $magentoProduct): string
     {
-        return (string)$this->toInteger(
-            $this->getPackageDimensionValue(
-                \M2E\TikTokShop\Helper\Component\TikTokShop\Configuration::DIMENSION_TYPE_HEIGHT,
-                $magentoProduct
-            )
-        );
+        $packageHeightSettings = $this->settingsRepository->getPackageHeight();
+
+        if ($packageHeightSettings->isModeCustomValue()) {
+            $customValue = $packageHeightSettings->getCustomValue();
+
+            if (empty($customValue)) {
+                throw NotConfiguredException::createPackageHeightException();
+            }
+
+            return (string)$this->toInteger($customValue);
+        }
+
+        if ($packageHeightSettings->isModeCustomAttribute()) {
+            $attributeCode = $packageHeightSettings->getCustomAttribute();
+            if (empty($attributeCode)) {
+                throw NotConfiguredException::createPackageHeightException();
+            }
+
+            $attributeValue = (float)$magentoProduct->getAttributeValue($attributeCode);
+
+            if (empty($attributeValue)) {
+                throw NotFoundAttributeValueException::createPackageHeightException($attributeCode);
+            }
+
+            return (string)$this->toInteger($attributeValue);
+        }
+
+        throw NotConfiguredException::createPackageHeightException();
+    }
+
+    private function toInteger($length): int
+    {
+        return (int)ceil((float)$length);
     }
 
     private function getUnit(\M2E\TikTokShop\Model\Product $product): string

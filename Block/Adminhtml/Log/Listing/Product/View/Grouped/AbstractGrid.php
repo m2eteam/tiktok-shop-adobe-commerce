@@ -7,11 +7,13 @@ use M2E\TikTokShop\Model\ResourceModel\Listing\Log as ListingLogResource;
 
 abstract class AbstractGrid extends \M2E\TikTokShop\Block\Adminhtml\Log\Listing\Product\AbstractGrid
 {
-    protected $nestedLogs = [];
+    protected array $nestedLogs = [];
     private \M2E\TikTokShop\Model\ResourceModel\Listing\Log\CollectionFactory $listingLogCollectionFactory;
+    private \M2E\TikTokShop\Model\ResourceModel\Listing $listingResource;
 
     public function __construct(
         \M2E\TikTokShop\Model\ResourceModel\Listing\Log\CollectionFactory $listingLogCollectionFactory,
+        \M2E\TikTokShop\Model\ResourceModel\Listing $listingResource,
         \M2E\TikTokShop\Model\ResourceModel\Account $accountResource,
         \M2E\TikTokShop\Model\Config\Manager $config,
         \M2E\TikTokShop\Model\ResourceModel\Collection\WrapperFactory $wrapperCollectionFactory,
@@ -37,6 +39,7 @@ abstract class AbstractGrid extends \M2E\TikTokShop\Block\Adminhtml\Log\Listing\
         );
 
         $this->listingLogCollectionFactory = $listingLogCollectionFactory;
+        $this->listingResource = $listingResource;
     }
 
     protected function getViewMode()
@@ -57,6 +60,17 @@ abstract class AbstractGrid extends \M2E\TikTokShop\Block\Adminhtml\Log\Listing\
     protected function _prepareCollection()
     {
         $logCollection = $this->listingLogCollectionFactory->create();
+        $logCollection->joinLeft(
+            ['listing' => $this->listingResource->getMainTable()],
+            sprintf(
+                '%s = listing.%s',
+                \M2E\TikTokShop\Model\ResourceModel\Listing\Log::COLUMN_LISTING_ID,
+                \M2E\TikTokShop\Model\ResourceModel\Listing::COLUMN_ID
+            ),
+            [
+                \M2E\TikTokShop\Model\ResourceModel\Listing::COLUMN_STORE_ID,
+            ]
+        );
 
         $this->applyFilters($logCollection);
 
@@ -89,6 +103,7 @@ abstract class AbstractGrid extends \M2E\TikTokShop\Block\Adminhtml\Log\Listing\
                                   'product_id' => sprintf('main_table.%s', ListingLogResource::COLUMN_PRODUCT_ID),
                                   'action_id' => sprintf('main_table.%s', ListingLogResource::COLUMN_ACTION_ID),
                                   'action' => sprintf('main_table.%s', ListingLogResource::COLUMN_ACTION),
+                                  'store_id' => sprintf('main_table.%s', \M2E\TikTokShop\Model\ResourceModel\Listing::COLUMN_STORE_ID),
                                   'listing_title' => sprintf('main_table.%s', ListingLogResource::COLUMN_LISTING_TITLE),
                                   'product_title' => sprintf('main_table.%s', ListingLogResource::COLUMN_PRODUCT_TITLE),
                                   'initiator' => sprintf('main_table.%s', ListingLogResource::COLUMN_INITIATOR),

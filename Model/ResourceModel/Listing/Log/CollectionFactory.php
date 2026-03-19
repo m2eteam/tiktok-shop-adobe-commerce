@@ -1,13 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace M2E\TikTokShop\Model\ResourceModel\Listing\Log;
 
 use M2E\TikTokShop\Model\ResourceModel\Listing\Log\Collection as ListingLogCollection;
 
 class CollectionFactory
 {
-    /** @var \Magento\Framework\ObjectManagerInterface */
-    private $objectManager;
+    private \Magento\Framework\ObjectManagerInterface $objectManager;
 
     public function __construct(\Magento\Framework\ObjectManagerInterface $objectManager)
     {

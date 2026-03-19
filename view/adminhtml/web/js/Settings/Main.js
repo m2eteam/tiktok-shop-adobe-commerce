@@ -1,94 +1,118 @@
 define([
+    'jquery',
+    'mage/translate',
     'TikTokShop/Common'
-], function () {
+], function ($, $t) {
     window.TikTokShopSettingsMain = Class.create(Common, {
 
         initialize: function () {
-            var self = this
+            this.initValidators();
+            this.initObservers();
+        },
 
-            jQuery.validator.addMethod('validator-required-when-visible', function (value, el) {
-                return value > 0
-            }, 'This is a required field.')
-
-            const weightValidator = function (value, el) {
-                if (self.isElementHiddenFromPage(el)) {
-                    return true;
-                }
-
-                if (typeof value === 'string') {
-                    value = value.trim();
-                }
-
-                return new RegExp(/^(?:[0-9]*[.])?[0-9]+$/).test(value);
-            }
-
-            const sizeValidator = function (value, el) {
-                if (self.isElementHiddenFromPage(el)) {
-                    return true;
-                }
-
-                if (typeof value === 'string') {
-                    value = value.trim();
-                }
-
-                return new RegExp(/^[0-9]+$/).test(value);
-            }
-
-            jQuery.validator.addMethod('validator-tts-weight', weightValidator, TikTokShop.translator.translate('not_valid_weight_message'))
-            jQuery.validator.addMethod('validator-tts-length', sizeValidator, TikTokShop.translator.translate('not_valid_length_message'))
-            jQuery.validator.addMethod('validator-tts-width', sizeValidator, TikTokShop.translator.translate('not_valid_width_message'))
-            jQuery.validator.addMethod('validator-tts-height', sizeValidator, TikTokShop.translator.translate('not_valid_height_message'))
-
-            this.initObservers()
+        initValidators: function () {
+            $.validator.addMethod(
+                    'validator-required-when-visible',
+                    (value) => value > 0,
+                    $t('This is a required field.')
+            );
+            $.validator.addMethod(
+                    'validator-tts-weight',
+                    this.weightValidator.bind(this),
+                    $t("The package weight must be a positive number")
+            );
+            $.validator.addMethod(
+                    'validator-tts-length',
+                    this.sizeValidator.bind(this),
+                    $t("The package length needs to be a whole number that's not negative")
+            );
+            $.validator.addMethod(
+                    'validator-tts-width',
+                    this.sizeValidator.bind(this),
+                    $t("The package width needs to be a whole number that's not negative")
+            );
+            $.validator.addMethod(
+                    'validator-tts-height',
+                    this.sizeValidator.bind(this),
+                    $t("The package height needs to be a whole number that's not negative")
+            );
         },
 
         initObservers: function () {
-            var self = this;
-
-            $('identifier_code_mode').addEventListener('change', function () {
-                self.identifier_code_mode_change(this)
+            $(document).on('change', '#identifier_code_mode', (event) => {
+                this.identifierCodeModeChange(event, $('#identifier_code_custom_attribute'))
             });
 
-            $('package_weight_mode').addEventListener('change', function () {
-                self.package_mode_change(this, $('package_weight_custom_attribute'), $('package_weight_custom_value'))
+            $(document).on('change', '#package_weight_mode', (event) => {
+                this.packageModeChange(event, $('#package_weight_custom_attribute'), $('#package_weight_custom_value'))
             });
 
-            $('package_length_mode').addEventListener('change', function () {
-                self.package_mode_change(this, $('package_length_custom_attribute'), $('package_length_custom_value'))
+            $(document).on('change', '#package_length_mode', (event) => {
+                this.packageModeChange(event, $('#package_length_custom_attribute'), $('#package_length_custom_value'))
             });
 
-            $('package_width_mode').addEventListener('change', function () {
-                self.package_mode_change(this, $('package_width_custom_attribute'), $('package_width_custom_value'))
+            $(document).on('change', '#package_width_mode', (event) => {
+                this.packageModeChange(event, $('#package_width_custom_attribute'), $('#package_width_custom_value'))
             });
 
-            $('package_height_mode').addEventListener('change', function () {
-                self.package_mode_change(this, $('package_height_custom_attribute'), $('package_height_custom_value'))
+            $(document).on('change', '#package_height_mode', (event) => {
+                this.packageModeChange(event, $('#package_height_custom_attribute'), $('#package_height_custom_value'))
             });
         },
 
         // ---------------------------------------
 
-        identifier_code_mode_change: function (option) {
-            var self = TikTokShopSettingsMainObj;
+        identifierCodeModeChange: function (event, customAttributeInput) {
+            const option = $(event.currentTarget).find('option:selected');
+            const mode = Number(option.val());
 
-            $('identifier_code_custom_attribute').value = '';
-            if (option.value == TikTokShop.php.constant('M2E_TikTokShop_Helper_Component_TikTokShop_Configuration::IDENTIFIER_CODE_MODE_CUSTOM_ATTRIBUTE')) {
-                self.updateHiddenValue(option, $('identifier_code_custom_attribute'));
+            customAttributeInput.val('');
+
+            if (mode === TikTokShop.php.constant('M2E_TikTokShop_Model_TikTokShop_Settings_IdentifierCode::MODE_CUSTOM_ATTRIBUTE')) {
+                customAttributeInput.val(option.attr('attribute_code'));
             }
         },
 
-        package_mode_change: function (option, customAttributeInput, customValueInput) {
-            customAttributeInput.value = ''
-            customValueInput.value = ''
-            customValueInput.hide()
+        packageModeChange: function (event, customAttributeInput, customValueInput) {
+            const option = $(event.currentTarget).find('option:selected');
+            const mode = Number(option.val());
 
-            if (option.value == TikTokShop.php.constant('M2E_TikTokShop_Helper_Component_TikTokShop_Configuration::PACKAGE_MODE_CUSTOM_ATTRIBUTE')) {
-                this.updateHiddenValue(option, customAttributeInput);
+            customAttributeInput.val('');
+            customValueInput.val('').hide();
+
+            if (mode === TikTokShop.php.constant('M2E_TikTokShop_Model_TikTokShop_Settings_Package::MODE_CUSTOM_ATTRIBUTE')) {
+                customAttributeInput.val(option.attr('attribute_code'));
             }
 
-            if (option.value == TikTokShop.php.constant('M2E_TikTokShop_Helper_Component_TikTokShop_Configuration::PACKAGE_MODE_CUSTOM_VALUE')) {
+            if (mode === TikTokShop.php.constant('M2E_TikTokShop_Model_TikTokShop_Settings_Package::MODE_CUSTOM_VALUE')) {
                 customValueInput.show();
             }
         },
+
+        // ---------------------------------------
+
+        weightValidator: function (value, element) {
+            if (this.isElementHiddenFromPage(element)) {
+                return true;
+            }
+
+            if (typeof value === 'string') {
+                value = value.trim();
+            }
+
+            return new RegExp(/^(?:[0-9]*[.])?[0-9]+$/).test(value);
+        },
+
+        sizeValidator: function (value, element) {
+            if (this.isElementHiddenFromPage(element)) {
+                return true;
+            }
+
+            if (typeof value === 'string') {
+                value = value.trim();
+            }
+
+            return new RegExp(/^[0-9]+$/).test(value);
+        }
     })
 })

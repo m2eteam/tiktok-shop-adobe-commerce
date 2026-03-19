@@ -23,19 +23,18 @@ class VariantSku extends AbstractDataBuilder
         \M2E\Core\Helper\Data\Product\Identifier::ISBN => 'ISBN',
     ];
 
-    private \M2E\TikTokShop\Helper\Component\TikTokShop\Configuration $ttsConfiguration;
-
     private array $onlineDataForSku = [];
-    /** @var \M2E\TikTokShop\Model\TikTokShop\Listing\Product\Action\DataBuilder\VariantSku\Item\ItemPartFactory */
-    private VariantSku\Item\ItemPartFactory $itemPartFactory;
+
+    private \M2E\TikTokShop\Model\TikTokShop\Settings\Repository $settingsRepository;
+    private \M2E\TikTokShop\Model\TikTokShop\Listing\Product\Action\DataBuilder\VariantSku\Item\ItemPartFactory $itemPartFactory;
 
     public function __construct(
-        \M2E\TikTokShop\Helper\Component\TikTokShop\Configuration $ttsConfiguration,
+        \M2E\TikTokShop\Model\TikTokShop\Settings\Repository $settingsRepository,
         \M2E\Core\Helper\Magento\Attribute $magentoAttributeHelper,
         \M2E\TikTokShop\Model\TikTokShop\Listing\Product\Action\DataBuilder\VariantSku\Item\ItemPartFactory $itemPartFactory
     ) {
         parent::__construct($magentoAttributeHelper);
-        $this->ttsConfiguration = $ttsConfiguration;
+        $this->settingsRepository = $settingsRepository;
         $this->itemPartFactory = $itemPartFactory;
     }
 
@@ -203,13 +202,13 @@ class VariantSku extends AbstractDataBuilder
             return $onlineIdentifier;
         }
 
-        if (!$this->ttsConfiguration->isIdentifierCodeModeCustomAttribute()) {
+        if (!$this->settingsRepository->getIdentifierCode()->isModeCustomAttribute()) {
             return null;
         }
 
         $this->searchNotFoundAttributes($this->getListingProduct()->getMagentoProduct());
 
-        $attributeCode = $this->ttsConfiguration->getIdentifierCodeCustomAttribute();
+        $attributeCode = $this->settingsRepository->getIdentifierCode()->getCustomAttribute();
         $value = $variantSku->getMagentoProduct()->getAttributeValue($attributeCode);
         if (empty($value) || $this->isSpecialIdentifierValue($value)) {
             $this->processNotFoundAttributes((string)__('Product ID'), $this->getListingProduct()->getMagentoProduct());

@@ -4,8 +4,16 @@ declare(strict_types=1);
 
 namespace M2E\TikTokShop\Model\Product\PackageDimension;
 
-class WeightFinder extends AbstractDimensionFinder
+class WeightFinder
 {
+    private \M2E\TikTokShop\Model\TikTokShop\Settings\Repository $settingsRepository;
+
+    public function __construct(
+        \M2E\TikTokShop\Model\TikTokShop\Settings\Repository $settingsRepository
+    ) {
+        $this->settingsRepository = $settingsRepository;
+    }
+
     /**
      * @throws \M2E\TikTokShop\Model\Product\PackageDimension\PackageDimensionException
      */
@@ -37,10 +45,15 @@ class WeightFinder extends AbstractDimensionFinder
         }
 
         if (count($childWeights) === 0) {
+            $message = (string)__(
+                'Package Weight is missing. To list the Product, please make sure ' .
+                'that the Package settings are correct.'
+            );
+
             throw new PackageDimensionException(
-                (string)__('Package Weight is missing. To list the Product, please make sure that the Package settings are correct.'),
+                $message,
                 [],
-                \M2E\TikTokShop\Model\Product\PackageDimension\PackageDimensionException::CODE_WEIGHT_MISSING
+                PackageDimensionException::CODE_WEIGHT_MISSING
             );
         }
 
@@ -55,16 +68,43 @@ class WeightFinder extends AbstractDimensionFinder
     }
 
     /**
-     * @throws \M2E\TikTokShop\Model\Product\PackageDimension\NotConfiguredException
+     * @throws NotConfiguredException
      * @throws \M2E\TikTokShop\Model\Product\PackageDimension\NotFoundAttributeValueException
      */
     public function getPackageWeight(\M2E\TikTokShop\Model\Magento\Product $magentoProduct): string
     {
-        return (string)$this->toFloat(
-            $this->getPackageDimensionValue(
-                \M2E\TikTokShop\Helper\Component\TikTokShop\Configuration::DIMENSION_TYPE_WEIGHT,
-                $magentoProduct
-            )
-        );
+        $packageWeightSettings = $this->settingsRepository->getPackageWeight();
+
+        if ($packageWeightSettings->isModeCustomValue()) {
+            $customValue = (float)$packageWeightSettings->getCustomValue();
+
+            if (empty($customValue)) {
+                throw NotConfiguredException::createPackageWeightException();
+            }
+
+            return (string)$this->toFloat($customValue);
+        }
+
+        if ($packageWeightSettings->getCustomAttribute()) {
+            $attributeCode = $packageWeightSettings->getCustomAttribute();
+            if (empty($attributeCode)) {
+                throw NotConfiguredException::createPackageWeightException();
+            }
+
+            $attributeValue = (float)$magentoProduct->getAttributeValue($attributeCode);
+
+            if (empty($attributeValue)) {
+                throw NotFoundAttributeValueException::createPackageWeightException($attributeCode);
+            }
+
+            return (string)$this->toFloat($attributeValue);
+        }
+
+        throw NotConfiguredException::createPackageWeightException();
+    }
+
+    private function toFloat($length): float
+    {
+        return round((float)$length, 2);
     }
 }

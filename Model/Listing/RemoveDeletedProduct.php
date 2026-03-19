@@ -127,10 +127,14 @@ class RemoveDeletedProduct
 
     private function addDeleteVariantSkuLog(\M2E\TikTokShop\Model\Product\VariantSku $variantSku): void
     {
-        $message = (string)__(
-            'SKU %sku: Item was deleted from Magento.',
-            ['sku' => $variantSku->getSku()]
-        );
+        try {
+            $message = (string)__(
+                'SKU %sku: Item was deleted from Magento.',
+                ['sku' => $variantSku->getSku()]
+            );
+        } catch (\M2E\TikTokShop\Model\Exception $exception) {
+            $message = "A Product's Variation was deleted from the Magento catalog.";
+        }
 
         $this->listingLogService->addProduct(
             $variantSku->getProduct(),

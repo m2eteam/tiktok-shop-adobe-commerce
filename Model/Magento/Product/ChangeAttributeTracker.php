@@ -14,19 +14,23 @@ class ChangeAttributeTracker
     public const INSTRUCTION_TYPE_IMAGES_DATA_CHANGED = 'magento_product_images_data_changed';
     public const INSTRUCTION_TYPE_CATEGORIES_DATA_CHANGED = 'magento_product_categories_data_changed';
 
+    private array $instructionsData = [];
+
     private \M2E\TikTokShop\Model\Product $listingProduct;
     private \M2E\TikTokShop\Model\Template\Description $templateDescription;
     private \M2E\TikTokShop\Model\InstructionService $instructionService;
-    private array $instructionsData = [];
+    private \M2E\TikTokShop\Model\TikTokShop\Settings\Repository $settingsRepository;
 
     public function __construct(
         \M2E\TikTokShop\Model\InstructionService $instructionService,
         \M2E\TikTokShop\Model\Product $listingProduct,
-        \M2E\TikTokShop\Model\Template\Description $templateDescription
+        \M2E\TikTokShop\Model\Template\Description $templateDescription,
+        \M2E\TikTokShop\Model\TikTokShop\Settings\Repository $settingsRepository
     ) {
         $this->listingProduct = $listingProduct;
         $this->templateDescription = $templateDescription;
         $this->instructionService = $instructionService;
+        $this->settingsRepository = $settingsRepository;
     }
 
     public function addInstructionWithPotentiallyChangedType(): void
@@ -85,6 +89,7 @@ class ChangeAttributeTracker
                 $this->getDescriptionTrackingAttributes(),
                 $this->getImagesTrackingAttributes(),
                 $this->getCategoriesTrackingAttributes(),
+                $this->getPackageTrackingAttributes(),
             )
         );
     }
@@ -121,5 +126,17 @@ class ChangeAttributeTracker
         }
 
         return array_unique($this->listingProduct->getCategoryDictionary()->getTrackedAttributes());
+    }
+
+    private function getPackageTrackingAttributes(): array
+    {
+        $attributes = [
+            $this->settingsRepository->getPackageWidth()->getCustomAttribute(),
+            $this->settingsRepository->getPackageLength()->getCustomAttribute(),
+            $this->settingsRepository->getPackageHeight()->getCustomAttribute(),
+            $this->settingsRepository->getPackageWeight()->getCustomAttribute(),
+        ];
+
+        return array_unique(array_filter($attributes));
     }
 }
