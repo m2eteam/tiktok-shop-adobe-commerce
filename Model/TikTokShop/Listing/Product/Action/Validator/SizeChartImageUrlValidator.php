@@ -27,6 +27,10 @@ class SizeChartImageUrlValidator implements ValidatorInterface
         \M2E\TikTokShop\Model\Product $product,
         \M2E\TikTokShop\Model\TikTokShop\Listing\Product\Action\Configurator $configurator
     ): ?ValidatorMessage {
+        if (!$configurator->isCategoriesAllowed()) {
+            return null;
+        }
+
         $sizeChart = $this->getSizeChartByDictionaryId($product);
         if (
             $sizeChart !== null

@@ -27,6 +27,10 @@ class CertificatesImageUrlValidator implements ValidatorInterface
         \M2E\TikTokShop\Model\Product $product,
         \M2E\TikTokShop\Model\TikTokShop\Listing\Product\Action\Configurator $configurator
     ): ?ValidatorMessage {
+        if (!$configurator->isCategoriesAllowed()) {
+            return null;
+        }
+
         $certificates = $this->getDictionaryCertificates($product);
         foreach ($certificates as $certificate) {
             if (

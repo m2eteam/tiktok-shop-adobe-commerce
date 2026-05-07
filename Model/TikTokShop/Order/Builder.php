@@ -427,7 +427,9 @@ class Builder extends \Magento\Framework\DataObject
                 continue;
             }
 
-            $this->updates[] = self::UPDATE_REFUND_RETURN_STATUS;
+            if (!$this->hasUpdate(self::UPDATE_REFUND_RETURN_STATUS)) {
+                $this->updates[] = self::UPDATE_REFUND_RETURN_STATUS;
+            }
 
             $message = null;
             $refundReturnStatus = $orderItem->getRefundReturnStatus();
@@ -552,10 +554,10 @@ class Builder extends \Magento\Framework\DataObject
 
         if (
             (
-            $this->hasUpdate(self::UPDATE_BUYER_REQUEST_RETURN_FOR_ITEM)
-            || $this->hasUpdate(self::UPDATE_REFUND_RETURN_STATUS)
-            || $this->hasUpdate(self::UPDATE_BUYER_REQUEST_REFUND_FOR_ITEM))
-            && !empty($this->magentoOrderNotes)
+                $this->hasUpdate(self::UPDATE_BUYER_REQUEST_RETURN_FOR_ITEM)
+                || $this->hasUpdate(self::UPDATE_REFUND_RETURN_STATUS)
+                || $this->hasUpdate(self::UPDATE_BUYER_REQUEST_REFUND_FOR_ITEM)
+            ) && !empty($this->magentoOrderNotes)
         ) {
             $magentoOrderUpdater->updateComments(array_values($this->magentoOrderNotes));
         }

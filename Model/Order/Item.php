@@ -883,10 +883,10 @@ class Item extends \M2E\TikTokShop\Model\ActiveRecord\AbstractModel
 
     public function isChangedRefundReturnStatus(): bool
     {
-        $oldValue = $this->getOrigData(OrderItemResource::COLUMN_REFUND_RETURN_STATUS);
+        $oldValue = (string)$this->getOrigData(OrderItemResource::COLUMN_REFUND_RETURN_STATUS);
         $newValue = $this->getRefundReturnStatus();
 
-        if ($oldValue && !$newValue) {
+        if ($oldValue && !empty($newValue)) {
             return false;
         }
 
