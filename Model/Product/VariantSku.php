@@ -347,10 +347,13 @@ class VariantSku extends \M2E\TikTokShop\Model\ActiveRecord\AbstractModel implem
         $src = $this->getProduct()->getSellingFormatTemplate()->getFixedPriceSource();
         $priceModifier = $this->getProduct()->getSellingFormatTemplate()->getFixedPriceModifier();
 
-        return $this->getCalculatedPriceWithModifier(
-            $src,
-            $priceModifier,
-        );
+        $price = $this->getCalculatedPriceWithModifier($src, $priceModifier);
+
+        if ($this->getListing()->getShop()->getRegion()->isRegionCodeHU()) {
+            $price = round($price);
+        }
+
+        return $price;
     }
 
     private function getCalculatedPriceWithModifier(array $src, array $modifier)

@@ -86,6 +86,70 @@ class Provider
                 Region::WEIGHT_DIMENSION_KILOGRAM,
                 new ProductPriceRestrictions(0.05, 10000)
             ),
+            new Region(
+                Region::REGION_HU,
+                (string)__('Hungary'),
+                Region::CURRENCY_HUF,
+                Region::SIZE_DIMENSION_CENTIMETER,
+                Region::WEIGHT_DIMENSION_KILOGRAM,
+                new ProductPriceRestrictions(0.05, 2453800)
+            ),
+            new Region(
+                Region::REGION_BE,
+                (string)__('Belgium'),
+                Region::CURRENCY_EUR,
+                Region::SIZE_DIMENSION_CENTIMETER,
+                Region::WEIGHT_DIMENSION_KILOGRAM,
+                new ProductPriceRestrictions(0.05, 6300)
+            ),
+            new Region(
+                Region::REGION_NL,
+                (string)__('Netherlands'),
+                Region::CURRENCY_EUR,
+                Region::SIZE_DIMENSION_CENTIMETER,
+                Region::WEIGHT_DIMENSION_KILOGRAM,
+                new ProductPriceRestrictions(0.05, 6300)
+            ),
+            new Region(
+                Region::REGION_PL,
+                (string)__('Poland'),
+                Region::CURRENCY_PLN,
+                Region::SIZE_DIMENSION_CENTIMETER,
+                Region::WEIGHT_DIMENSION_KILOGRAM,
+                new ProductPriceRestrictions(0.05, 26800)
+            ),
+            new Region(
+                Region::REGION_CZ,
+                (string)__('Czech Republic'),
+                Region::CURRENCY_CZK,
+                Region::SIZE_DIMENSION_CENTIMETER,
+                Region::WEIGHT_DIMENSION_KILOGRAM,
+                new ProductPriceRestrictions(0.05, 153200)
+            ),
+            new Region(
+                Region::REGION_GR,
+                (string)__('Greece'),
+                Region::CURRENCY_EUR,
+                Region::SIZE_DIMENSION_CENTIMETER,
+                Region::WEIGHT_DIMENSION_KILOGRAM,
+                new ProductPriceRestrictions(0.05, 6300)
+            ),
+            new Region(
+                Region::REGION_PT,
+                (string)__('Portugal'),
+                Region::CURRENCY_EUR,
+                Region::SIZE_DIMENSION_CENTIMETER,
+                Region::WEIGHT_DIMENSION_KILOGRAM,
+                new ProductPriceRestrictions(0.05, 6300)
+            ),
+            new Region(
+                Region::REGION_AT,
+                (string)__('Austria'),
+                Region::CURRENCY_EUR,
+                Region::SIZE_DIMENSION_CENTIMETER,
+                Region::WEIGHT_DIMENSION_KILOGRAM,
+                new ProductPriceRestrictions(0.05, 6300)
+            ),
         ];
     }
 }

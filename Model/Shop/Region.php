@@ -15,12 +15,23 @@ class Region
     public const REGION_FR = 'FR';
     public const REGION_IT = 'IT';
     public const REGION_BR = 'BR';
+    public const REGION_HU = 'HU';
+    public const REGION_BE = 'BE';
+    public const REGION_NL = 'NL';
+    public const REGION_PL = 'PL';
+    public const REGION_CZ = 'CZ';
+    public const REGION_GR = 'GR';
+    public const REGION_PT = 'PT';
+    public const REGION_AT = 'AT';
 
     public const CURRENCY_EUR = 'EUR';
     public const CURRENCY_USD = 'USD';
     public const CURRENCY_GBP = 'GBP';
     public const CURRENCY_MXN = 'MXN';
     public const CURRENCY_BRL = 'BRL';
+    public const CURRENCY_HUF = 'HUF';
+    public const CURRENCY_PLN = 'PLN';
+    public const CURRENCY_CZK = 'CZK';
 
     public const SIZE_DIMENSION_CENTIMETER = 'CENTIMETER';
     public const SIZE_DIMENSION_INCH = 'INCH';
@@ -34,6 +45,14 @@ class Region
         self::REGION_DE,
         self::REGION_FR,
         self::REGION_IT,
+        self::REGION_HU,
+        self::REGION_BE,
+        self::REGION_NL,
+        self::REGION_PL,
+        self::REGION_CZ,
+        self::REGION_GR,
+        self::REGION_PT,
+        self::REGION_AT,
     ];
 
     private const US_REGION_CODES = [
@@ -145,14 +164,27 @@ class Region
         return $this->regionCode === self::REGION_BR;
     }
 
+    public function isRegionCodeHU(): bool
+    {
+        return $this->regionCode === self::REGION_HU;
+    }
+
     public function getLocale(): string
     {
         $locales = [
-            \M2E\TikTokShop\Model\Shop\Region::REGION_DE => 'de-DE',
-            \M2E\TikTokShop\Model\Shop\Region::REGION_IE => 'en-IE',
-            \M2E\TikTokShop\Model\Shop\Region::REGION_ES => 'es-ES',
-            \M2E\TikTokShop\Model\Shop\Region::REGION_FR => 'fr-FR',
-            \M2E\TikTokShop\Model\Shop\Region::REGION_IT => 'it-IT',
+            self::REGION_DE => 'de-DE',
+            self::REGION_IE => 'en-IE',
+            self::REGION_ES => 'es-ES',
+            self::REGION_FR => 'fr-FR',
+            self::REGION_IT => 'it-IT',
+            self::REGION_HU => 'hu-HU',
+            self::REGION_BE => 'nl-BE',
+            self::REGION_NL => 'nl-NL',
+            self::REGION_PL => 'pl-PL',
+            self::REGION_CZ => 'cs-CZ',
+            self::REGION_GR => 'el-GR',
+            self::REGION_PT => 'pt-PT',
+            self::REGION_AT => 'de-AT',
         ];
 
         return $locales[$this->getRegionCode()] ?? 'en-US';
