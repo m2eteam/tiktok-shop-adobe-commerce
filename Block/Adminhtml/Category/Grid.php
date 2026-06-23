@@ -4,7 +4,7 @@ namespace M2E\TikTokShop\Block\Adminhtml\Category;
 
 class Grid extends \M2E\TikTokShop\Block\Adminhtml\Magento\Grid\AbstractGrid
 {
-    protected $categoryCollectionFactory;
+    protected \M2E\TikTokShop\Model\ResourceModel\Magento\Category\CollectionFactory $categoryCollectionFactory;
 
     public function __construct(
         \M2E\TikTokShop\Model\ResourceModel\Magento\Category\CollectionFactory $categoryCollectionFactory,

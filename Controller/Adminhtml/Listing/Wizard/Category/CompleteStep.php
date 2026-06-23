@@ -26,8 +26,17 @@ class CompleteStep extends \M2E\TikTokShop\Controller\Adminhtml\AbstractListing
 
         $manager = $this->wizardManagerFactory->createById($id);
 
+        if ($this->isNeedRemoveProductsWithoutCategory()) {
+            $manager->removeProductsWithoutCategory();
+        }
+
         $manager->completeStep(StepDeclarationCollectionFactory::STEP_SELECT_CATEGORY);
 
         return $this->redirectToIndex($id);
+    }
+
+    private function isNeedRemoveProductsWithoutCategory(): bool
+    {
+        return (bool)$this->getRequest()->getParam('remove_products_without_category');
     }
 }

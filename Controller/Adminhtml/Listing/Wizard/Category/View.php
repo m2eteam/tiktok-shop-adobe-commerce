@@ -11,17 +11,19 @@ class View extends \M2E\TikTokShop\Controller\Adminhtml\Listing\Wizard\StepAbstr
 {
     use \M2E\TikTokShop\Controller\Adminhtml\Listing\Wizard\WizardTrait;
 
-    private \M2E\TikTokShop\Model\Category\Dictionary\Repository $dictionaryRepository;
+    private \M2E\TikTokShop\Model\Listing\Wizard\Category\ModeMagentoCategory\DataProvider $magentoCategoryDataProvider;
+    private \M2E\TikTokShop\Model\Listing\Wizard\Category\ModeMagentoCategory\AssignCategory $assignCategory;
 
     public function __construct(
-        \M2E\TikTokShop\Model\Category\Dictionary\Repository $dictionaryRepository,
+        \M2E\TikTokShop\Model\Listing\Wizard\Category\ModeMagentoCategory\DataProvider $magentoCategoryDataProvider,
+        \M2E\TikTokShop\Model\Listing\Wizard\Category\ModeMagentoCategory\AssignCategory $assignCategory,
         \M2E\TikTokShop\Model\Listing\Ui\RuntimeStorage $uiListingRuntimeStorage,
         \M2E\TikTokShop\Model\Listing\Wizard\ManagerFactory $wizardManagerFactory,
         \M2E\TikTokShop\Model\Listing\Wizard\Ui\RuntimeStorage $uiWizardRuntimeStorage
     ) {
         parent::__construct($wizardManagerFactory, $uiListingRuntimeStorage, $uiWizardRuntimeStorage);
-
-        $this->dictionaryRepository = $dictionaryRepository;
+        $this->magentoCategoryDataProvider = $magentoCategoryDataProvider;
+        $this->assignCategory = $assignCategory;
     }
 
     protected function getStepNick(): string
@@ -42,6 +44,10 @@ class View extends \M2E\TikTokShop\Controller\Adminhtml\Listing\Wizard\StepAbstr
 
         if ($mode === CategorySelectMode::MODE_MANUALLY) {
             return $this->stepSelectCategoryModeManually();
+        }
+
+        if ($mode === CategorySelectMode::MODE_CATEGORY) {
+            return $this->stepSelectByMagentoCategory();
         }
 
         throw new \LogicException('Category mode unknown.');
@@ -92,9 +98,56 @@ class View extends \M2E\TikTokShop\Controller\Adminhtml\Listing\Wizard\StepAbstr
         $this->getResultPage()
              ->getConfig()
              ->getTitle()
-             ->prepend(
-                 __('Set Category (Manually for each Product)'),
-             );
+             ->prepend(__('Set Category (Manually for each Product)'));
+
+        return $this->getResult();
+    }
+
+    private function stepSelectByMagentoCategory()
+    {
+        $manager = $this->getWizardManager();
+        $listing = $manager->getListing();
+
+        $categoryDataCollection = $this->magentoCategoryDataProvider->getCategoryDataCollection($listing);
+
+        $currentStepData = $manager->getStepData(StepDeclarationCollectionFactory::STEP_SELECT_CATEGORY);
+        $isInitialized = $currentStepData['is_initialized_categories'] ?? false;
+        if (!$isInitialized) {
+            foreach ($categoryDataCollection->getItems() as $categoryData) {
+                $this->assignCategory->assign(
+                    $manager,
+                    $categoryData->magentoCategoryId,
+                    $categoryData->dictionaryId
+                );
+            }
+            $manager->setStepData(
+                StepDeclarationCollectionFactory::STEP_SELECT_CATEGORY,
+                ['is_initialized_categories' => true]
+            );
+        }
+
+        $block = $this
+            ->getLayout()
+            ->createBlock(
+                \M2E\TikTokShop\Block\Adminhtml\Listing\Wizard\Category\MagentoCategory::class,
+                '',
+                [
+                    'categoryDataCollection' => $categoryDataCollection,
+                ]
+            );
+
+        if ($this->getRequest()->isXmlHttpRequest()) {
+            $this->setAjaxContent($block->getChildBlock('grid')->toHtml());
+
+            return $this->getResult();
+        }
+
+        $this->addContent($block);
+
+        $this->getResultPage()
+             ->getConfig()
+             ->getTitle()
+             ->prepend(__('Set Category (Based On Magento Categories)'));
 
         return $this->getResult();
     }

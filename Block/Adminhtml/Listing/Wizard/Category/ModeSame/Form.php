@@ -29,7 +29,7 @@ class Form extends \M2E\TikTokShop\Block\Adminhtml\Magento\Form\AbstractForm
                 'value' => __(
                     'You need to choose %channel_title Categories for Products in order to list them on %channel_title.',
                     [
-                        'channel_title' => $channelTitle
+                        'channel_title' => $channelTitle,
                     ]
                 ),
                 'field_extra_attributes' =>
@@ -70,7 +70,7 @@ CSS,
                     __(
                         'Products will be Listed using the same %channel_title Category.',
                         [
-                            'channel_title' => $channelTitle
+                            'channel_title' => $channelTitle,
                         ]
                     ) . '</div>',
             ],
@@ -93,10 +93,35 @@ CSS,
                     __(
                         'Set %channel_title Categories for each Product (or a group of Products) manually.',
                         [
-                            'channel_title' => $channelTitle
+                            'channel_title' => $channelTitle,
                         ]
                     ) . '</div>',
             ],
+        );
+
+        $fieldset->addField(
+            'mode3',
+            'radios',
+            [
+                'name' => 'mode',
+                'field_extra_attributes' => 'style="margin: 4px 0 0 0; font-weight: bold"',
+                'values' => [
+                    [
+                        'value' => CategorySelectMode::MODE_CATEGORY,
+                        'label' => __('Set %channel_title Categories (Based On Magento Categories)', [
+                            'channel_title' => $channelTitle,
+                        ]),
+                    ],
+                ],
+                'value' => CategorySelectMode::MODE_SAME,
+                'note' => '<div style="padding-top: 3px; padding-left: 26px; font-weight: normal">' .
+                    __(
+                        'Products will have %channel_title Categories set according to the Magento Categories.',
+                        [
+                            'channel_title' => $channelTitle,
+                        ]
+                    ) . '</div>',
+            ]
         );
 
         $form->setUseContainer(true);

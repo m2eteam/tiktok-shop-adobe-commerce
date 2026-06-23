@@ -317,6 +317,15 @@ class Manager
         $this->repository->setCategoryDictionaryIdForAllProducts($this->wizard, $categoryDictionaryId);
     }
 
+    public function setProductsCategoryIdMagentoCategory(array $magentoProductIds, ?int $categoryDictionaryId)
+    {
+        $this->repository->setCategoryDictionaryIdForProducts(
+            $this->wizard,
+            $magentoProductIds,
+            $categoryDictionaryId
+        );
+    }
+
     /**
      * @param int $id
      *
@@ -398,5 +407,28 @@ class Manager
     public function getProductsCount(): int
     {
         return $this->repository->getProductCount($this->wizard);
+    }
+
+    /**
+     * @return int[]
+     */
+    public function getProductsIds(): array
+    {
+        $wizardProducts = $this->getProducts();
+        if (empty($wizardProducts)) {
+            return [];
+        }
+
+        $ids = [];
+        foreach ($wizardProducts as $product) {
+            $ids[] = $product->getMagentoProductId();
+        }
+
+        return $ids;
+    }
+
+    public function removeProductsWithoutCategory()
+    {
+        $this->repository->removeProductsWithoutCategory($this->wizard);
     }
 }

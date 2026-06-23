@@ -12,13 +12,15 @@ class Recommended extends \M2E\TikTokShop\Controller\Adminhtml\TikTokShop\Abstra
     private \M2E\TikTokShop\Model\Product\Repository $listingProductRepository;
     private \M2E\TikTokShop\Model\Magento\Product\Cache $magentoProductModel;
     private \M2E\TikTokShop\Model\Shop\Repository $shopRepository;
+    private \M2E\Core\Helper\Magento\Category $magentoCategoryHelper;
 
     public function __construct(
         \M2E\TikTokShop\Model\Product\Repository $listingProductRepository,
         \M2E\TikTokShop\Model\Category\Recommended $recommendedCategory,
         \M2E\TikTokShop\Model\Listing\Wizard\Repository $listingWizardRepository,
         \M2E\TikTokShop\Model\Magento\Product\CacheFactory $magentoProductFactory,
-        \M2E\TikTokShop\Model\Shop\Repository $shopRepository
+        \M2E\TikTokShop\Model\Shop\Repository $shopRepository,
+        \M2E\Core\Helper\Magento\Category $magentoCategoryHelper
     ) {
         parent::__construct();
 
@@ -27,6 +29,7 @@ class Recommended extends \M2E\TikTokShop\Controller\Adminhtml\TikTokShop\Abstra
         $this->magentoProductFactory = $magentoProductFactory;
         $this->listingProductRepository = $listingProductRepository;
         $this->shopRepository = $shopRepository;
+        $this->magentoCategoryHelper = $magentoCategoryHelper;
     }
 
     public function execute()
@@ -34,6 +37,7 @@ class Recommended extends \M2E\TikTokShop\Controller\Adminhtml\TikTokShop\Abstra
         $shopId = (int)$this->getRequest()->getParam('shop_id');
         $wizardId = $this->getRequest()->getParam('wizard_id');
         $productId = $this->getRequest()->getParam('product_id');
+        $magentoCategoryId = $this->getRequest()->getParam('magento_category_id');
 
         $result = [];
 
@@ -45,7 +49,9 @@ class Recommended extends \M2E\TikTokShop\Controller\Adminhtml\TikTokShop\Abstra
 
         $this->magentoProductModel = $this->magentoProductFactory->create();
         if (!empty($wizardId)) {
-            if (empty($productId)) {
+            if (!empty($magentoCategoryId)) {
+                $result['categories'] = $this->getSearchResultByMagentoCategoryId((int)$magentoCategoryId, $shopId);
+            } elseif (empty($productId)) {
                 $magentoProductId = $this->listingWizardRepository->getMagentoProductIdByWizardId((int)$wizardId);
 
                 $result['categories'] = $this->getSearchResult($magentoProductId, $shopId);
@@ -79,6 +85,27 @@ class Recommended extends \M2E\TikTokShop\Controller\Adminhtml\TikTokShop\Abstra
         $shop = $this->shopRepository->find($shopId);
         $magentoProductName = $this->magentoProductModel->getNameByProductId($magentoProductId);
         $searchResult = $this->recommendedCategory->process($shopId, $magentoProductName);
+
+        if (isset($searchResult)) {
+            $result = [
+                'id' => $searchResult->categoryId,
+                'path' => $searchResult->path,
+                'is_invite' => $searchResult->isInviteOnly,
+                'is_valid' => $searchResult->isValid,
+                'skip_invite' => $shop->getRegion()->isUS()
+            ];
+        }
+
+        return $result;
+    }
+
+    private function getSearchResultByMagentoCategoryId(int $magentoCategoryId, int $shopId): array
+    {
+        $result = [];
+
+        $shop = $this->shopRepository->find($shopId);
+        $categoryPath = implode(', ', $this->magentoCategoryHelper->getPath($magentoCategoryId));
+        $searchResult = $this->recommendedCategory->process($shopId, $categoryPath);
 
         if (isset($searchResult)) {
             $result = [

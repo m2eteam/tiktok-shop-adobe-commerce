@@ -138,7 +138,9 @@ class Grid extends \M2E\TikTokShop\Block\Adminhtml\Magento\Grid\AbstractGrid
         ]);
 
         $this->addColumn('category', [
-            'header' => __(\M2E\TikTokShop\Helper\Module::getChannelTitle() . ' Category'),
+            'header' => __('%channel_title Category', [
+                'channel_title' => \M2E\TikTokShop\Helper\Module::getChannelTitle(),
+            ]),
             'align' => 'left',
             'width' => '*',
             'index' => 'category',
@@ -161,7 +163,6 @@ class Grid extends \M2E\TikTokShop\Block\Adminhtml\Magento\Grid\AbstractGrid
             'filter' => false,
             'field' => 'product_id',
             'renderer' => \M2E\TikTokShop\Block\Adminhtml\Magento\Grid\Column\Renderer\Action::class,
-            'group_order' => $this->getGroupOrder(),
             'actions' => $this->getColumnActionsItems(),
         ]);
 
@@ -258,29 +259,18 @@ class Grid extends \M2E\TikTokShop\Block\Adminhtml\Magento\Grid\AbstractGrid
 
     // ----------------------------------------
 
-    protected function getGroupOrder()
-    {
-        return [
-            'edit_actions' => __('Edit Settings'),
-        ];
-    }
-
     protected function getColumnActionsItems(): array
     {
         return [
             'editCategories' => [
                 'caption' => __('Edit Category'),
-                'group' => 'edit_actions',
                 'field' => 'product_id',
-                'onclick_action' => "ListingWizardCategoryModeManuallyGridObj."
-                    . "actions['editCategoriesAction']",
+                'onclick_action' => "ListingWizardCategoryModeManuallyGridObj.actions['editCategoriesAction']",
             ],
             'resetCategories' => [
                 'caption' => __('Reset Category'),
-                'group' => 'edit_actions',
                 'field' => 'product_id',
-                'onclick_action' => "ListingWizardCategoryModeManuallyGridObj."
-                    . "actions['resetCategoriesAction']",
+                'onclick_action' => "ListingWizardCategoryModeManuallyGridObj.actions['resetCategoriesAction']",
             ],
         ];
     }

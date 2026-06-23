@@ -32,7 +32,13 @@ class ModeCompleteStep extends \M2E\TikTokShop\Controller\Adminhtml\AbstractList
             return $this->redirectToIndex($id);
         }
 
-        if (!in_array($mode, [CategorySelectMode::MODE_SAME, CategorySelectMode::MODE_MANUALLY])) {
+        if (
+            !in_array($mode, [
+                CategorySelectMode::MODE_SAME,
+                CategorySelectMode::MODE_MANUALLY,
+                CategorySelectMode::MODE_CATEGORY,
+            ])
+        ) {
             throw new \LogicException(sprintf('Category mode %s not valid.', $mode));
         }
 

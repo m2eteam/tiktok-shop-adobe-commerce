@@ -10,6 +10,7 @@ class CategorySelectMode extends \M2E\TikTokShop\Block\Adminhtml\Magento\Form\Ab
 
     public const MODE_SAME = 'same';
     public const MODE_MANUALLY = 'manually';
+    public const MODE_CATEGORY = 'category';
 
     private \M2E\TikTokShop\Model\Listing\Wizard\Ui\RuntimeStorage $uiWizardRuntimeStorage;
 

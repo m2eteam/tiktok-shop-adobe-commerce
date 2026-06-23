@@ -8,6 +8,8 @@ use M2E\TikTokShop\Model\ResourceModel\Listing as ListingResource;
 
 class Listing extends \M2E\TikTokShop\Model\ActiveRecord\AbstractModel
 {
+    private const ADDITIONAL_DATA_CATEGORY_MAPPING_KEY = 'tiktok_shop_category_mapping';
+
     public const LOCK_NICK = 'listing';
 
     public const INSTRUCTION_TYPE_PRODUCT_ADDED = 'listing_product_added';
@@ -283,5 +285,37 @@ class Listing extends \M2E\TikTokShop\Model\ActiveRecord\AbstractModel
     public function setStoreId(int $id): void
     {
         $this->setData(ListingResource::COLUMN_STORE_ID, $id);
+    }
+
+    /**
+     * @return \M2E\TikTokShop\Model\Listing\CategoryMappingItem[]
+     */
+    public function getCategoryMappingItems(): array
+    {
+        $additionalData = $this->getAdditionalData();
+        $rawItems = $additionalData[self::ADDITIONAL_DATA_CATEGORY_MAPPING_KEY] ?? [];
+
+        $mappingItems = [];
+        foreach ($rawItems as $rawItem) {
+            $mappingItems[] = \M2E\TikTokShop\Model\Listing\CategoryMappingItem::createFromArray($rawItem);
+        }
+
+        return $mappingItems;
+    }
+
+    /**
+     * @param \M2E\TikTokShop\Model\Listing\CategoryMappingItem[] $categoryMappingItems
+     */
+    public function setCategoryMappingItems(array $categoryMappingItems): void
+    {
+        $additionalData = $this->getAdditionalData();
+        $mappingsToSave = [];
+        foreach ($categoryMappingItems as $categoryMappingItem) {
+            $mappingsToSave[] = $categoryMappingItem->toArray();
+        }
+
+        $additionalData[self::ADDITIONAL_DATA_CATEGORY_MAPPING_KEY] = $mappingsToSave;
+
+        $this->setAdditionalData($additionalData);
     }
 }

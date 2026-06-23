@@ -9,6 +9,7 @@ define([
         wizardId: null,
         productId: null,
         shopId: null,
+        magentoCategoryId: null,
 
         // ---------------------------------------
 
@@ -38,6 +39,16 @@ define([
 
         setProductId: function (id) {
             this.productId = id;
+        },
+
+        // ---------------------------------------
+
+        getMagentoCategoryId: function () {
+            return this.magentoCategoryId;
+        },
+
+        setMagentoCategoryId: function (id) {
+            this.magentoCategoryId = id;
         }
     });
 });

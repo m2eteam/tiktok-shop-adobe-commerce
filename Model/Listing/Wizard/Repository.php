@@ -153,7 +153,10 @@ class Repository
     ): ?\M2E\TikTokShop\Model\Listing\Wizard {
         $collection = $this->wizardCollectionFactory->create();
         $collection
-            ->addFieldToFilter(\M2E\TikTokShop\Model\ResourceModel\Listing\Wizard::COLUMN_LISTING_ID, ['eq' => $listing->getId()])
+            ->addFieldToFilter(
+                \M2E\TikTokShop\Model\ResourceModel\Listing\Wizard::COLUMN_LISTING_ID,
+                ['eq' => $listing->getId()]
+            )
             ->addFieldToFilter(\M2E\TikTokShop\Model\ResourceModel\Listing\Wizard::COLUMN_IS_COMPLETED, ['eq' => 0])
             ->addFieldToFilter(\M2E\TikTokShop\Model\ResourceModel\Listing\Wizard::COLUMN_TYPE, ['eq' => $type]);
 
@@ -336,8 +339,14 @@ class Repository
     ): ?\M2E\TikTokShop\Model\Listing\Wizard\Product {
         $productCollection = $this->productCollectionFactory->create();
         $productCollection
-            ->addFieldToFilter(\M2E\TikTokShop\Model\ResourceModel\Listing\Wizard\Product::COLUMN_WIZARD_ID, $wizard->getId())
-            ->addFieldToFilter(\M2E\TikTokShop\Model\ResourceModel\Listing\Wizard\Product::COLUMN_MAGENTO_PRODUCT_ID, ['eq' => $id]);
+            ->addFieldToFilter(
+                \M2E\TikTokShop\Model\ResourceModel\Listing\Wizard\Product::COLUMN_WIZARD_ID,
+                $wizard->getId()
+            )
+            ->addFieldToFilter(
+                \M2E\TikTokShop\Model\ResourceModel\Listing\Wizard\Product::COLUMN_MAGENTO_PRODUCT_ID,
+                ['eq' => $id]
+            );
 
         $product = $productCollection->getFirstItem();
         if ($product->isObjectNew()) {
@@ -456,6 +465,25 @@ class Repository
             );
     }
 
+    public function setCategoryDictionaryIdForProducts(
+        \M2E\TikTokShop\Model\Listing\Wizard $wizard,
+        array $magentoProductIds,
+        ?int $categoryDictionaryId
+    ) {
+        $this->wizardProductResource
+            ->getConnection()
+            ->update(
+                $this->wizardProductResource->getMainTable(),
+                [
+                    WizardProductResource::COLUMN_CATEGORY_ID => $categoryDictionaryId,
+                ],
+                [
+                    sprintf('%s = ?', WizardProductResource::COLUMN_WIZARD_ID) => $wizard->getId(),
+                    sprintf('%s IN (?)', WizardProductResource::COLUMN_MAGENTO_PRODUCT_ID) => $magentoProductIds,
+                ],
+            );
+    }
+
     /**
      * @param \M2E\TikTokShop\Model\Listing\Wizard $wizard
      * @param int[] $productsIds
@@ -517,8 +545,10 @@ class Repository
      *
      * @return \M2E\TikTokShop\Model\Listing\Wizard\Product[]
      */
-    public function findProductsForValidateCategoryAttributes(\M2E\TikTokShop\Model\Listing\Wizard $wizard, int $productLimit): array
-    {
+    public function findProductsForValidateCategoryAttributes(
+        \M2E\TikTokShop\Model\Listing\Wizard $wizard,
+        int $productLimit
+    ): array {
         $productCollection = $this->productCollectionFactory->create();
         $productCollection
             ->addFieldToFilter(
@@ -591,6 +621,21 @@ class Repository
                 [
                     sprintf('%s = %d', WizardProductResource::COLUMN_CATEGORY_ID, $categoryId),
                 ],
+            );
+    }
+
+    public function removeProductsWithoutCategory(\M2E\TikTokShop\Model\Listing\Wizard $wizard)
+    {
+        $this->wizardProductResource
+            ->getConnection()
+            ->delete(
+                $this->wizardProductResource->getMainTable(),
+                sprintf(
+                    '`%s` = %s AND `%s` IS NULL',
+                    WizardProductResource::COLUMN_WIZARD_ID,
+                    $wizard->getId(),
+                    WizardProductResource::COLUMN_CATEGORY_ID
+                )
             );
     }
 }

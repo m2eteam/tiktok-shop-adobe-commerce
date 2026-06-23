@@ -11,11 +11,14 @@ define([
         initialize: function () {
             this.categoryChooser = window.TikTokShopCategoryChooserObj;
 
-            this.search(
-                window.SelectedProductsDataObj.getShopId(),
-                window.SelectedProductsDataObj.getWizardId(),
-                window.SelectedProductsDataObj.getProductId()
-            );
+            if (window.SelectedProductsDataObj) {
+                this.search(
+                        window.SelectedProductsDataObj.getShopId(),
+                        window.SelectedProductsDataObj.getWizardId(),
+                        window.SelectedProductsDataObj.getProductId(),
+                        window.SelectedProductsDataObj.getMagentoCategoryId()
+                );
+            }
         },
 
         initObservers: function () {
@@ -30,7 +33,8 @@ define([
         search: function (
             shopId,
             wizardId,
-            productId
+            productId,
+            magentoCategoryId
         ) {
             const url = TikTokShop.url.get('*/category/recommended');
             new Ajax.Request(url, {
@@ -39,7 +43,8 @@ define([
                 parameters: {
                     shop_id: shopId,
                     wizard_id: wizardId,
-                    product_id: productId
+                    product_id: productId,
+                    magento_category_id: magentoCategoryId
                 },
                 onSuccess: function (transport) {
                     const resultTable = jQuery('#recommended_results_table');
