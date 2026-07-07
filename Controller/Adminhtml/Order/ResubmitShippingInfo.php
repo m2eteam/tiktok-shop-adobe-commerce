@@ -66,7 +66,7 @@ class ResubmitShippingInfo extends \M2E\TikTokShop\Controller\Adminhtml\Abstract
             $this->messageManager->addError($errorMessage);
         } else {
             $this->messageManager->addSuccess(
-                __('Shipping Information has been resend.')
+                __('Shipping Information has been resent.')
             );
         }
 

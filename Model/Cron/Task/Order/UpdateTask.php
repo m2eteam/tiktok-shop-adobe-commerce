@@ -11,15 +11,18 @@ class UpdateTask implements \M2E\Core\Model\Cron\TaskHandlerInterface
     private \M2E\TikTokShop\Model\Order\Change\Repository $orderChangeRepository;
     private \M2E\TikTokShop\Model\Account\Repository $accountRepository;
     private \M2E\TikTokShop\Model\Order\Change\ShippingProcessor $shippingProcessor;
+    private \M2E\TikTokShop\Model\Order\Item\Repository $orderItemRepository;
 
     public function __construct(
         \M2E\TikTokShop\Model\Order\Change\ShippingProcessor $shippingProcessor,
         \M2E\TikTokShop\Model\Account\Repository $accountRepository,
-        \M2E\TikTokShop\Model\Order\Change\Repository $orderChangeRepository
+        \M2E\TikTokShop\Model\Order\Change\Repository $orderChangeRepository,
+        \M2E\TikTokShop\Model\Order\Item\Repository $orderItemRepository
     ) {
         $this->orderChangeRepository = $orderChangeRepository;
         $this->accountRepository = $accountRepository;
         $this->shippingProcessor = $shippingProcessor;
+        $this->orderItemRepository = $orderItemRepository;
     }
 
     /**
@@ -59,8 +62,35 @@ class UpdateTask implements \M2E\Core\Model\Cron\TaskHandlerInterface
 
     private function deleteNotActualChanges(): void
     {
-        $this->orderChangeRepository->deleteByProcessingAttemptCount(
-            \M2E\TikTokShop\Model\Order\Change::MAX_ALLOWED_PROCESSING_ATTEMPTS
-        );
+        $orderChanges = $this->orderChangeRepository
+            ->getItemsExceededProcessingAttemptCount(
+                \M2E\TikTokShop\Model\Order\Change::MAX_ALLOWED_PROCESSING_ATTEMPTS
+            );
+
+        if (empty($orderChanges)) {
+            return;
+        }
+
+        foreach ($orderChanges as $orderChange) {
+            $order = $orderChange->getOrder();
+            $orderChangeParamsItems = $orderChange->getParams()['items'] ?? [];
+
+            foreach ($orderChangeParamsItems as $orderChangeParamItem) {
+                $orderItem = $order->findItem((int)$orderChangeParamItem['item_id']);
+                if ($orderItem === null) {
+                    continue;
+                }
+
+                $orderItem->setShippingInProgressNo();
+                $this->orderItemRepository->save($orderItem);
+            }
+
+            $order->addWarningLog(
+                'All automatic attempts to send the shipping details to TikTok failed. ' .
+                'Please verify the tracking information and use the "Resend Shipping Info" button.'
+            );
+
+            $this->orderChangeRepository->delete($orderChange);
+        }
     }
 }

@@ -186,19 +186,19 @@ class Repository
         );
     }
 
-    public function deleteByProcessingAttemptCount(int $count = 3): void
+    /**
+     * @param int $count
+     *
+     * @return \M2E\TikTokShop\Model\Order\Change[]
+     */
+    public function getItemsExceededProcessingAttemptCount(int $count): array
     {
-        if ($count <= 0) {
-            return;
-        }
-
-        $where = [
-            sprintf('%s >= ?', OrderChangeResource::COLUMN_PROCESSING_ATTEMPT_COUNT) => $count,
-        ];
-
-        $this->resource->getConnection()->delete(
-            $this->resource->getMainTable(),
-            $where
+        $collection = $this->collectionFactory->create();
+        $collection->addFieldToFilter(
+            OrderChangeResource::COLUMN_PROCESSING_ATTEMPT_COUNT,
+            ['gteq' => $count]
         );
+
+        return array_values($collection->getItems());
     }
 }
