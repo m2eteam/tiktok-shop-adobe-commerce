@@ -196,7 +196,7 @@ class ShipmentService
 
         if (
             $shippingProviderId === null
-            && $trackingDetails->isCustomCarrierCode()
+            && $trackingDetails->isCustomCarrier()
             && $order->getAccount()->getInvoiceAndShipmentSettings()->isMapShippingProviderByCustomCarrierTitle()
         ) {
             $shippingProvider = $this->shippingProviderRepository->findByAccountShopWarehouseAndTitle(

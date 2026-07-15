@@ -11,19 +11,22 @@ class TrackingDetails
     private string $carrierTitle;
     private string $shippingMethod;
     private string $trackingNumber;
+    private bool $isCustomCarrier;
 
     public function __construct(
         int $magentoShipmentId,
         string $carrierCode,
         string $carrierTitle,
         string $shippingMethod,
-        string $trackingNumber
+        string $trackingNumber,
+        bool $isCustomCarrier
     ) {
         $this->magentoShipmentId = $magentoShipmentId;
         $this->carrierCode = $carrierCode;
         $this->carrierTitle = $carrierTitle;
         $this->shippingMethod = $shippingMethod;
         $this->trackingNumber = $trackingNumber;
+        $this->isCustomCarrier = $isCustomCarrier;
     }
 
     public function getMagentoShipmentId(): int
@@ -51,8 +54,8 @@ class TrackingDetails
         return $this->trackingNumber;
     }
 
-    public function isCustomCarrierCode(): bool
+    public function isCustomCarrier(): bool
     {
-        return $this->getCarrierCode() === \M2E\TikTokShop\Model\Magento\Order\Shipment\Track::CUSTOM_CARRIER_CODE;
+        return $this->isCustomCarrier;
     }
 }
