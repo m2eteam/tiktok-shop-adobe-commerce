@@ -148,7 +148,7 @@ class PackageWeightFields
                         ],
                     ],
                 ],
-                'value' => $packageWeight->getCustomAttribute(),
+                'value' => $this->getSelectedValue($packageWeight),
                 'create_magento_attribute' => true,
                 'tooltip' => (string)__("The package weight must be a positive number. ( kg (UK), lb (US))"),
                 'after_element_html' => $afterHtml,
@@ -196,5 +196,14 @@ class PackageWeightFields
         }
 
         return implode(' ', $preparedAttributes);
+    }
+
+    private function getSelectedValue(\M2E\TikTokShop\Model\TikTokShop\Settings\PackageWeight $packageWeight): string
+    {
+        if ($packageWeight->isModeCustomAttribute()) {
+            return '';
+        }
+
+        return (string)$packageWeight->getMode();
     }
 }

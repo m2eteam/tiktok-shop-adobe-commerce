@@ -76,7 +76,7 @@ class Finder
 
         foreach ($affectedDataLines as $affectedId) {
             $affectedProduct = $listingProductsSortedById[$affectedId['product_id']];
-            $affectedVariant = $variantSkusSortedById[$affectedId['variant_id']] ?? null;
+            $affectedVariant = $variantSkusSortedById[(string)$affectedId['variant_id']] ?? null;
 
             $resultCollection->addResult(
                 new \M2E\TikTokShop\Model\Product\AffectedProduct\Product(

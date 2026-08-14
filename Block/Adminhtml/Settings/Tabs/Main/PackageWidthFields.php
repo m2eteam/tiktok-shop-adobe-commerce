@@ -68,7 +68,7 @@ class PackageWidthFields
                         ],
                     ],
                 ],
-                'value' => $packageWidth->getCustomAttribute(),
+                'value' => $this->getSelectedValue($packageWidth),
                 'create_magento_attribute' => true,
                 'tooltip' => (string)__("The package width needs to be a whole number that's not negative. " .
                     "Possible Units: US: CENTIMETER, INCH, Other regions: CENTIMETER"),
@@ -197,5 +197,14 @@ class PackageWidthFields
         }
 
         return implode(' ', $preparedAttributes);
+    }
+
+    private function getSelectedValue(\M2E\TikTokShop\Model\TikTokShop\Settings\PackageWidth $packageWidth): string
+    {
+        if ($packageWidth->isModeCustomAttribute()) {
+            return '';
+        }
+
+        return (string)$packageWidth->getMode();
     }
 }

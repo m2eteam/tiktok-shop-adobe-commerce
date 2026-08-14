@@ -8,7 +8,8 @@ class ShipmentService
     public const HANDLE_RESULT_SKIPPED = 0;
     public const HANDLE_RESULT_SUCCEEDED = 1;
 
-    private \M2E\TikTokShop\Model\Warehouse\ShippingMapping $shippingProviderMapping;
+    /** @var array<string, \M2E\TikTokShop\Model\Warehouse\ShippingMapping> */
+    private array $shippingProviderMappingsByWarehouse = [];
 
     private \M2E\TikTokShop\Model\Order\Shipment\TrackingDetailsBuilder $trackingDetailsBuilder;
     private \M2E\TikTokShop\Model\Order\Shipment\ItemLoader $itemLoader;
@@ -267,11 +268,13 @@ class ShipmentService
     private function getShippingProviderMapping(
         \M2E\TikTokShop\Model\Order $order
     ): \M2E\TikTokShop\Model\Warehouse\ShippingMapping {
-        /** @psalm-suppress RedundantPropertyInitializationCheck */
-        if (!isset($this->shippingProviderMapping)) {
-            $this->shippingProviderMapping = $order->getWarehouse()->getShippingProviderMapping();
+        $warehouse = $order->getWarehouse();
+        $warehouseId = $warehouse->getWarehouseId();
+
+        if (!isset($this->shippingProviderMappingsByWarehouse[$warehouseId])) {
+            $this->shippingProviderMappingsByWarehouse[$warehouseId] = $warehouse->getShippingProviderMapping();
         }
 
-        return $this->shippingProviderMapping;
+        return $this->shippingProviderMappingsByWarehouse[$warehouseId];
     }
 }

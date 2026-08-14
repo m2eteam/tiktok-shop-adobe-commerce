@@ -143,12 +143,10 @@ class PackageHeightFields
                     [
                         'label' => __('Magento Attributes'),
                         'value' => $this->getMagentoAttributesOptions($packageHeight),
-                        'attrs' => [
-                            'is_magento_attribute' => true,
-                        ],
+                        'attrs' => ['is_magento_attribute' => true],
                     ],
                 ],
-                'value' => $packageHeight->getCustomAttribute(),
+                'value' => $this->getSelectedValue($packageHeight),
                 'create_magento_attribute' => true,
                 'tooltip' => (string)__("The package height needs to be a whole number that's not negative. " .
                     "Possible Units: US: CENTIMETER, INCH, Other regions: CENTIMETER"),
@@ -197,5 +195,14 @@ class PackageHeightFields
         }
 
         return implode(' ', $preparedAttributes);
+    }
+
+    private function getSelectedValue(\M2E\TikTokShop\Model\TikTokShop\Settings\PackageHeight $packageHeight): string
+    {
+        if ($packageHeight->isModeCustomAttribute()) {
+            return '';
+        }
+
+        return (string)$packageHeight->getMode();
     }
 }

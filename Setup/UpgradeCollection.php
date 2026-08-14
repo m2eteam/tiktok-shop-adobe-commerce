@@ -87,6 +87,7 @@ class UpgradeCollection extends \M2E\Core\Model\Setup\AbstractUpgradeCollection
             '2.15.0' => ['to' => '2.15.1', 'upgrade' => null],
             '2.15.1' => ['to' => '2.15.2', 'upgrade' => null],
             '2.15.2' => ['to' => '2.15.3', 'upgrade' => null],
+            '2.15.3' => ['to' => '2.15.4', 'upgrade' => null],
         ];
     }
 }

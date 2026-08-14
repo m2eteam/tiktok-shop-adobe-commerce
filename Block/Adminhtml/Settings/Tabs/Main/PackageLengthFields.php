@@ -148,7 +148,7 @@ class PackageLengthFields
                         ],
                     ],
                 ],
-                'value' => $packageLength->getCustomAttribute(),
+                'value' => $this->getSelectedValue($packageLength),
                 'create_magento_attribute' => true,
                 'tooltip' => (string)__("The package length needs to be a whole number that's not negative. " .
                     "Possible Units: US: CENTIMETER, INCH, Other  regions: CENTIMETER"),
@@ -197,5 +197,14 @@ class PackageLengthFields
         }
 
         return implode(' ', $preparedAttributes);
+    }
+
+    private function getSelectedValue(\M2E\TikTokShop\Model\TikTokShop\Settings\PackageLength $packageLength): string
+    {
+        if ($packageLength->isModeCustomAttribute()) {
+            return '';
+        }
+
+        return (string)$packageLength->getMode();
     }
 }
